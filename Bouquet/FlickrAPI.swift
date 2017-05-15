@@ -40,7 +40,7 @@ struct FlickrAPI {
             "nojsoncallback": "1",
             "api_key" : apiKey,
             "text" : "flower",
-            "per_page" : "5"
+            "per_page" : "25"
         ]
         
         for (key, value) in baseParams {

@@ -17,6 +17,10 @@
 		1926E45B1EBD937F003416E2 /* FlickrAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1926E45A1EBD937F003416E2 /* FlickrAPI.swift */; };
 		1926E45D1EBD989D003416E2 /* PhotoStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1926E45C1EBD989D003416E2 /* PhotoStore.swift */; };
 		1926E45F1EBDA1F7003416E2 /* Photo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1926E45E1EBDA1F7003416E2 /* Photo.swift */; };
+		193006131EC67FF20022DBB2 /* PhotoImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 193006121EC67FF20022DBB2 /* PhotoImageView.swift */; };
+		193006161EC966AA0022DBB2 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 193006151EC966AA0022DBB2 /* QuartzCore.framework */; };
+		193006181EC966B60022DBB2 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 193006171EC966B60022DBB2 /* UIKit.framework */; };
+		1930061A1EC966BE0022DBB2 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 193006191EC966BE0022DBB2 /* CoreGraphics.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -53,6 +57,10 @@
 		1926E45A1EBD937F003416E2 /* FlickrAPI.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FlickrAPI.swift; sourceTree = "<group>"; };
 		1926E45C1EBD989D003416E2 /* PhotoStore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PhotoStore.swift; sourceTree = "<group>"; };
 		1926E45E1EBDA1F7003416E2 /* Photo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Photo.swift; sourceTree = "<group>"; };
+		193006121EC67FF20022DBB2 /* PhotoImageView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PhotoImageView.swift; sourceTree = "<group>"; };
+		193006151EC966AA0022DBB2 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
+		193006171EC966B60022DBB2 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
+		193006191EC966BE0022DBB2 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -60,6 +68,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1930061A1EC966BE0022DBB2 /* CoreGraphics.framework in Frameworks */,
+				193006181EC966B60022DBB2 /* UIKit.framework in Frameworks */,
+				193006161EC966AA0022DBB2 /* QuartzCore.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -87,6 +98,7 @@
 				1926E4401EBD8943003416E2 /* BouquetTests */,
 				1926E44B1EBD8943003416E2 /* BouquetUITests */,
 				1926E42A1EBD8942003416E2 /* Products */,
+				193006141EC966AA0022DBB2 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -112,6 +124,7 @@
 				1926E45A1EBD937F003416E2 /* FlickrAPI.swift */,
 				1926E45C1EBD989D003416E2 /* PhotoStore.swift */,
 				1926E45E1EBDA1F7003416E2 /* Photo.swift */,
+				193006121EC67FF20022DBB2 /* PhotoImageView.swift */,
 			);
 			path = Bouquet;
 			sourceTree = "<group>";
@@ -132,6 +145,16 @@
 				1926E44E1EBD8943003416E2 /* Info.plist */,
 			);
 			path = BouquetUITests;
+			sourceTree = "<group>";
+		};
+		193006141EC966AA0022DBB2 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				193006191EC966BE0022DBB2 /* CoreGraphics.framework */,
+				193006171EC966B60022DBB2 /* UIKit.framework */,
+				193006151EC966AA0022DBB2 /* QuartzCore.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -274,6 +297,7 @@
 				1926E45B1EBD937F003416E2 /* FlickrAPI.swift in Sources */,
 				1926E42F1EBD8942003416E2 /* PhotosViewController.swift in Sources */,
 				1926E45D1EBD989D003416E2 /* PhotoStore.swift in Sources */,
+				193006131EC67FF20022DBB2 /* PhotoImageView.swift in Sources */,
 				1926E42D1EBD8942003416E2 /* AppDelegate.swift in Sources */,
 				1926E45F1EBDA1F7003416E2 /* Photo.swift in Sources */,
 			);
@@ -431,7 +455,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				DEVELOPMENT_TEAM = 2WA89PX7ZL;
 				INFOPLIST_FILE = Bouquet/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 10.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = edu.ucsc.Bouquet;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -445,7 +469,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				DEVELOPMENT_TEAM = 2WA89PX7ZL;
 				INFOPLIST_FILE = Bouquet/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 10.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = edu.ucsc.Bouquet;
 				PRODUCT_NAME = "$(TARGET_NAME)";

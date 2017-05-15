@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import UIKit
 
 class Photo {
     
@@ -14,6 +15,9 @@ class Photo {
     let remoteURL:URL
     let photoID:String
     let dateTaken:Date
+    
+    //image data
+    var imageData:UIImage?
     
     init(title:String, photoID:String, remoteURL:URL, dateTaken:Date) {
         self.title = title
