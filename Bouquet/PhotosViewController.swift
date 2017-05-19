@@ -9,15 +9,12 @@
 import UIKit
 
 class PhotosViewController: UIViewController {
-
-     var store:PhotoStore!
-     //var animator:UIDynamicAnimator!
+    
+    var store:PhotoStore!
 
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
-        
-        //self.animator = UIDynamicAnimator(referenceView: self.view)
         
         store.searchPhotos {
             [weak self](photosResult) -> Void in
@@ -87,7 +84,9 @@ class PhotosViewController: UIViewController {
                 anImageView.image = image
                 anImageView.layer.cornerRadius = anImageView.frame.size.width / 2
                 anImageView.layer.masksToBounds = true
-                
+                anImageView.layer.borderColor = UIColor.green.cgColor
+                anImageView.layer.borderWidth = 2.0
+               
                 //add an explicit animation
                 let toX = aRandomPoint.x
                 let toY = self.view.frame.size.height + imageRect.size.height/2
@@ -103,29 +102,15 @@ class PhotosViewController: UIViewController {
 
                 //add it to the subview
                 self.view.addSubview(anImageView)
-                
-                
-
-                //add the gravity , sliding down behavior
-                
-                
-                /*let aUIGravityBehavior:UIGravityBehavior = UIGravityBehavior(items: [aImageView])
-                self.animator.addBehavior(aUIGravityBehavior)
-                
-                let aDyanmicItemBehavior:UIDynamicItemBehavior = UIDynamicItemBehavior(items: [aImageView])
-                aDyanmicItemBehavior.resistance = 40.0
-                self.animator.addBehavior(aDyanmicItemBehavior)
-                
-                
-                let aCollisionBehavior:UICollisionBehavior = UICollisionBehavior(items: [aImageView])
-                aCollisionBehavior.translatesReferenceBoundsIntoBoundary = true
-                self.animator.addBehavior(aCollisionBehavior)*/
+        
                 
             case let .failure(error):
                 print("Error downloading image:\(error)")
             }
         }
     }
+    
+    
     
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
