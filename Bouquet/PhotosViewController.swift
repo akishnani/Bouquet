@@ -53,7 +53,7 @@ class PhotosViewController: UIViewController, CAAnimationDelegate {
                 let toX = imagePosition.x
                 let toY = self.view.frame.size.height + imageRect.size.height/2
                 let toPoint = CGPoint(x: toX, y: toY)
-                let randomDuration:CFTimeInterval = CFTimeInterval(arc4random() % 5) + 10
+                let randomDuration:CFTimeInterval = CFTimeInterval(arc4random() % 5) + 5
                 
                 let movement = CABasicAnimation(keyPath: "position")
                 movement.fromValue = NSValue(cgPoint: imagePosition)
