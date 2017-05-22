@@ -22,9 +22,17 @@ class PhotoImageView: UIImageView {
     //This variable will keep track of the last position of a user's touch
     var previousLocation:CGPoint = CGPoint.zero
 
-    public override init(frame: CGRect) {
+    public init(frame: CGRect, imageData:UIImage) {
         super.init(frame: frame)
-        
+        self.image = imageData
+
+        //make  the image circular
+        self.layer.cornerRadius = self.frame.size.width / 2
+        self.layer.masksToBounds = true
+        self.layer.borderColor = UIColor.green.cgColor
+        self.layer.borderWidth = 2.0
+
+        //make the user interaction enable
         self.isUserInteractionEnabled = true
         
         //add a tap gesture

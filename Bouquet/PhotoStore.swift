@@ -24,6 +24,10 @@ enum PhotosResult {
 }
 
 class PhotoStore {
+    
+    //creating a singleton class for Photostore
+    static let sharedInstance = PhotoStore()
+    private init() {} //This prevents others from using the default '()' initializer for this class.
  
     private let session:URLSession = {
        let config = URLSessionConfiguration.default
