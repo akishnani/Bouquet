@@ -24,9 +24,21 @@ class PhotoImageView: UIImageView,CAAnimationDelegate {
     
     //store the state of previous animation
     var aBasicAnimation:CABasicAnimation? = nil
+    
+    //velocity
+    var duration:CFTimeInterval?
+    
+    //favorites basket view 
+    var basketImageView:UIImageView? = nil
+    
+    //link to photo object
+    var photo:Photo?
 
-    public init(frame: CGRect, imageData:UIImage) {
+    public init(frame: CGRect, imageData:UIImage, aPhoto:Photo) {
         super.init(frame: frame)
+        
+        //save the reference to the photo
+        self.photo = aPhoto
         
         //make the image circular
         self.image = imageData.circleMasked
@@ -57,6 +69,10 @@ class PhotoImageView: UIImageView,CAAnimationDelegate {
         timer?.add(to: .main, forMode: .UITrackingRunLoopMode)
     }
     
+    deinit {
+        print("inside the deinitializer...")
+    }
+    
     /*
      * function is being called on each screen update in order to update the imagerect (frame) to the 
      * presentation layer frame. this is done for gesture recognizer to function inspite of the animation
@@ -69,8 +85,10 @@ class PhotoImageView: UIImageView,CAAnimationDelegate {
     @objc func update(timer: Timer) {
         
         if (!bIsDragging && !bIsPinching) {
-            let viewLocation:CGRect = (self.layer.presentation()?.frame)!
-            self.frame = CGRect(x: viewLocation.origin.x, y: viewLocation.origin.y, width: viewLocation.size.width, height: viewLocation.size.height)
+            if let presentationLayer = self.layer.presentation() {
+                let viewLocation:CGRect = presentationLayer.frame
+                self.frame = CGRect(x: viewLocation.origin.x, y: viewLocation.origin.y, width: viewLocation.size.width, height: viewLocation.size.height)
+            }
         }
     }
     
@@ -110,6 +128,14 @@ class PhotoImageView: UIImageView,CAAnimationDelegate {
             theTransform.tx = 0.0
             theTransform.ty = 0.0
             self.transform = theTransform
+            
+            //check if intersect with basket frame
+            if (self.basketImageView?.frame.intersects(self.frame))! {
+                self.layer.removeAnimation(forKey: "move")
+                self.removeFromSuperview()
+                self.image = nil
+                return
+            }
             
             //readd the animation which was removed temporarily
             self.reAddAnimation()
@@ -165,11 +191,10 @@ class PhotoImageView: UIImageView,CAAnimationDelegate {
     */
     func reAddAnimation() {
         //readd the animation
-        //add an explicit animation
         let toX = self.center.x
         let toY = (self.superview?.frame.size.height)! + self.frame.size.height/2
         let toPoint = CGPoint(x: toX, y: toY)
-        let randomDuration:CFTimeInterval = CFTimeInterval(arc4random() % 5) + 5
+        let randomDuration:CFTimeInterval = self.duration!
         
         let movement = CABasicAnimation(keyPath: "position")
         movement.fromValue = NSValue(cgPoint: self.center)
@@ -209,6 +234,7 @@ class PhotoImageView: UIImageView,CAAnimationDelegate {
     func animationDidStop(_ anim: CAAnimation, finished flag: Bool) {
         if (flag) {
             self.removeFromSuperview()
+            self.image = nil
         }
     }
     

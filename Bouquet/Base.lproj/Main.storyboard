@@ -6,6 +6,7 @@
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="12088"/>
+        <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -17,12 +18,29 @@
                         <viewControllerLayoutGuide type="top" id="y3c-jy-aDJ"/>
                         <viewControllerLayoutGuide type="bottom" id="wfy-db-euE"/>
                     </layoutGuides>
-                    <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
+                    <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC" customClass="PhotosView" customModule="Bouquet" customModuleProvider="target">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="FavoritesBasket" translatesAutoresizingMaskIntoConstraints="NO" id="KWE-Vq-zfd">
+                                <rect key="frame" x="268" y="568" width="91" height="91"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="91" id="DiJ-iv-XUx"/>
+                                    <constraint firstAttribute="width" constant="91" id="aod-we-N61"/>
+                                </constraints>
+                            </imageView>
+                        </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <constraints>
+                            <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="KWE-Vq-zfd" secondAttribute="bottom" constant="8" id="PUD-QT-Kc4"/>
+                            <constraint firstItem="KWE-Vq-zfd" firstAttribute="trailing" secondItem="8bC-Xf-vdC" secondAttribute="trailingMargin" id="bPw-Pd-EUs"/>
+                        </constraints>
                     </view>
                     <navigationItem key="navigationItem" title="Bouquet" id="isJ-an-hey"/>
+                    <connections>
+                        <outlet property="basketImageView" destination="KWE-Vq-zfd" id="wq9-sa-4QL"/>
+                        <outlet property="photosView" destination="8bC-Xf-vdC" id="Lw3-Ee-08V"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
@@ -47,4 +65,7 @@
             <point key="canvasLocation" x="447" y="283"/>
         </scene>
     </scenes>
+    <resources>
+        <image name="FavoritesBasket" width="200" height="200"/>
+    </resources>
 </document>

@@ -21,6 +21,7 @@ struct FlickrAPI {
     
     private static let baseURLString = "https://api.flickr.com/services/rest"
     private static let apiKey = "b7067bfca4c0d09250593e7c6d491e53" //api key generated corresponding to Bouquet app
+    private static var pageNo:Int = 0
 
     private static let dateFormatter:DateFormatter = {
         let formatter = DateFormatter()
@@ -61,8 +62,11 @@ struct FlickrAPI {
     }
     
     static var searchFlickrURL : URL {
+        pageNo += 1
+        print("search Flickr API page no:\(pageNo)")
         return flickrURL(method: .searchPhotos,
-                         parameters: ["extras" : "url_h, date_taken"])
+                         parameters: ["extras" : "url_h, date_taken",
+                                      "page": String(pageNo)])
     }
     
     static func photos(fromJSON data:Data) -> PhotosResult {

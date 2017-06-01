@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		191798671ED8F1B30085BD05 /* ImageStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 191798661ED8F1B30085BD05 /* ImageStore.swift */; };
 		1926E42D1EBD8942003416E2 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1926E42C1EBD8942003416E2 /* AppDelegate.swift */; };
 		1926E42F1EBD8942003416E2 /* PhotosViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1926E42E1EBD8942003416E2 /* PhotosViewController.swift */; };
 		1926E4321EBD8942003416E2 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1926E4301EBD8942003416E2 /* Main.storyboard */; };
@@ -21,6 +22,8 @@
 		193006161EC966AA0022DBB2 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 193006151EC966AA0022DBB2 /* QuartzCore.framework */; };
 		193006181EC966B60022DBB2 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 193006171EC966B60022DBB2 /* UIKit.framework */; };
 		1930061A1EC966BE0022DBB2 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 193006191EC966BE0022DBB2 /* CoreGraphics.framework */; };
+		195E2EF21EDF712B00E57C24 /* README.md in Sources */ = {isa = PBXBuildFile; fileRef = 195E2EF11EDF712B00E57C24 /* README.md */; };
+		19B2E80A1ED6BB2500B7BE15 /* PhotosView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19B2E8091ED6BB2500B7BE15 /* PhotosView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -41,6 +44,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		191798661ED8F1B30085BD05 /* ImageStore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageStore.swift; sourceTree = "<group>"; };
 		1926E4291EBD8942003416E2 /* Bouquet.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Bouquet.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1926E42C1EBD8942003416E2 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		1926E42E1EBD8942003416E2 /* PhotosViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotosViewController.swift; sourceTree = "<group>"; };
@@ -61,6 +65,8 @@
 		193006151EC966AA0022DBB2 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		193006171EC966B60022DBB2 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		193006191EC966BE0022DBB2 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
+		195E2EF11EDF712B00E57C24 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		19B2E8091ED6BB2500B7BE15 /* PhotosView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PhotosView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -94,6 +100,7 @@
 		1926E4201EBD8942003416E2 = {
 			isa = PBXGroup;
 			children = (
+				195E2EF11EDF712B00E57C24 /* README.md */,
 				1926E42B1EBD8942003416E2 /* Bouquet */,
 				1926E4401EBD8943003416E2 /* BouquetTests */,
 				1926E44B1EBD8943003416E2 /* BouquetUITests */,
@@ -123,8 +130,10 @@
 				1926E4381EBD8942003416E2 /* Info.plist */,
 				1926E45A1EBD937F003416E2 /* FlickrAPI.swift */,
 				1926E45C1EBD989D003416E2 /* PhotoStore.swift */,
+				191798661ED8F1B30085BD05 /* ImageStore.swift */,
 				1926E45E1EBDA1F7003416E2 /* Photo.swift */,
 				193006121EC67FF20022DBB2 /* PhotoImageView.swift */,
+				19B2E8091ED6BB2500B7BE15 /* PhotosView.swift */,
 			);
 			path = Bouquet;
 			sourceTree = "<group>";
@@ -297,7 +306,10 @@
 				1926E45B1EBD937F003416E2 /* FlickrAPI.swift in Sources */,
 				1926E42F1EBD8942003416E2 /* PhotosViewController.swift in Sources */,
 				1926E45D1EBD989D003416E2 /* PhotoStore.swift in Sources */,
+				191798671ED8F1B30085BD05 /* ImageStore.swift in Sources */,
+				19B2E80A1ED6BB2500B7BE15 /* PhotosView.swift in Sources */,
 				193006131EC67FF20022DBB2 /* PhotoImageView.swift in Sources */,
+				195E2EF21EDF712B00E57C24 /* README.md in Sources */,
 				1926E42D1EBD8942003416E2 /* AppDelegate.swift in Sources */,
 				1926E45F1EBDA1F7003416E2 /* Photo.swift in Sources */,
 			);

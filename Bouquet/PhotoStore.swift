@@ -25,14 +25,28 @@ enum PhotosResult {
 
 class PhotoStore {
     
+    var allPhotos = [String:Photo]()
+    
+    let imageStore = ImageStore()
+    
     //creating a singleton class for Photostore
     static let sharedInstance = PhotoStore()
-    private init() {} //This prevents others from using the default '()' initializer for this class.
+    
+    //This prevents others from using the default '()' initializer for this class.
+    private init() {
+    }
  
     private let session:URLSession = {
        let config = URLSessionConfiguration.default
        return URLSession(configuration: config)
     }()
+    
+    //path to photos.archive
+    private let photoArchiveURL:URL = {
+        let documentDirectories = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
+        let documentDirectory = documentDirectories.first!
+        return documentDirectory.appendingPathComponent("photos.archive")
+    } ()
     
     private func processPhotosRequest(data:Data?, error: Error?) -> PhotosResult {
         guard let jsonData = data else {
@@ -41,7 +55,7 @@ class PhotoStore {
         
         return FlickrAPI.photos(fromJSON: jsonData)
     }
-    
+
     func searchPhotos(completion:@escaping (PhotosResult) -> Void) {
         let url = FlickrAPI.searchFlickrURL
         let request = URLRequest(url: url)
@@ -49,6 +63,14 @@ class PhotoStore {
         let task = session.dataTask(with: request) {
             (data, response, error) -> Void in
             let result = self.processPhotosRequest(data: data, error: error)
+            
+            if case let .success(photos) = result {
+                //iterate through the list and add them to photo dictionary
+                for aPhoto in photos {
+                    self.allPhotos.updateValue(aPhoto, forKey: aPhoto.photoID)
+                }
+            }
+            
             OperationQueue.main.addOperation {
                 completion(result)
             }
@@ -56,7 +78,52 @@ class PhotoStore {
         task.resume()
     }
     
+    
+    func loadSavedPhotos(completion:@escaping (PhotosResult) -> Void) {
+        if let archivedPhotos = NSKeyedUnarchiver.unarchiveObject(withFile: photoArchiveURL.path) as? [String:Photo] {
+            
+            //loaded photo count
+            print("loaded \(archivedPhotos.count) photos " )
+            
+            for (key, value) in archivedPhotos {
+                self.allPhotos.updateValue(value, forKey: key)
+            }
+                        
+            var arrPhotos = [Photo]()
+            for (_, value) in self.allPhotos {
+                arrPhotos.append(value)
+            }
+            
+            OperationQueue.main.addOperation {
+                completion(.success(arrPhotos))
+            }
+        }
+    }
+    
+    func savePhotos() -> Bool {
+        print("saving photos to \(photoArchiveURL.path)")
+        return NSKeyedArchiver.archiveRootObject(allPhotos, toFile: photoArchiveURL.path)
+    }
+    
+    func removeAllPhotos() {
+        
+        //remove all photo key-value pairs
+        self.allPhotos.removeAll()
+    }
+    
     func fetchImage(for photo:Photo , completion:@escaping (ImageResult) -> Void) {
+        
+        let photoKey = photo.photoID
+        
+        ///load the image from the image store (cache)
+        if let image = imageStore.image(forKey: photo.photoID) {
+            print("found key:\(photoKey) in image store")
+            OperationQueue.main.addOperation {
+                completion(.success(image))
+            }
+            return
+        }
+        
         let photoURL = photo.remoteURL
         let request = URLRequest(url: photoURL)
         
@@ -64,9 +131,16 @@ class PhotoStore {
             (data, response, error) -> Void in
             
             let result = self.processImageRequest(data: data, error: error)
+            
+            if case let .success(image) = result {
+                //save the image to imagestore (cache)
+                self.imageStore.setImage(image, forKey: photoKey)
+            }
+            
             OperationQueue.main.addOperation {
                 completion(result)
-            }        }
+            }
+        }
         task.resume()
     }
 
