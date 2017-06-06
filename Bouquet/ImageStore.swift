@@ -10,14 +10,14 @@ import UIKit
 
 class ImageStore {
     
-    //comenting the cache since don't want to keep big images in cache - so persisting them on disk
+    //comenting the in-memory cache since don't want to keep big images in cache - so persisting them on disk
     //let cache = NSCache<NSString,UIImage>()
 
     func image(forKey key:String) -> UIImage? {
         
-        /*if let existingImage = cache.object(forKey: key as NSString) {
-            return existingImage
-        }*/
+//        if let existingImage = cache.object(forKey: key as NSString) {
+//            return existingImage
+//        }
         
         let url = imageURL(forKey: key)
         guard let imageFromDisk = UIImage(contentsOfFile: url.path) else {

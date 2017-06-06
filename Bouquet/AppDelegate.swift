@@ -42,7 +42,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         print("inside app terminate")
         let store:PhotoStore = PhotoStore.sharedInstance
         //save photos after succesful search for faster reboot
-        store.savePhotos()
+        if (store.savePhotos()) {
+            print("successfully saved \(store.allPhotos.count) photos")
+        }
     }
 }
 

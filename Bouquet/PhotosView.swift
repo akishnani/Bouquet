@@ -10,6 +10,10 @@ import UIKit
 
 class PhotosView: UIView,CAAnimationDelegate {
     
+    //max relaunch count the system memory can handle
+    //only restore the max following flowers from the saved state
+    let maxRelaunchFlowerCount = 40
+    
     var flowerCount:Int = 0
     var flowerRemoved:Int = 0
     var bSavingInProgress:Bool = false
@@ -177,14 +181,24 @@ class PhotosView: UIView,CAAnimationDelegate {
                 }
             }
         } else  {
-            for aPhoto in photos! {
-                self.fetchAndConfigureImage(aPhoto: aPhoto)
+            var photoCount:Int! = photos?.count
+            if (photoCount > self.maxRelaunchFlowerCount) {
+                photoCount = self.maxRelaunchFlowerCount
+                self.flowerCount = photoCount
             }
+            for index in 0..<photoCount {
+                self.fetchAndConfigureImage(aPhoto: (photos?[index])!)
+            }
+//            for aPhoto in photos! {
+//                self.fetchAndConfigureImage(aPhoto: aPhoto)
+//            }
         }
     }
     
     //saved photos
-    func savePhotos(bActivePhotos:Bool) {
+    func savePhotos(bActivePhotos:Bool) -> Bool {
+        
+        var bSuccess:Bool = false
         
         bSavingInProgress = true
         
@@ -207,7 +221,7 @@ class PhotosView: UIView,CAAnimationDelegate {
         }
         
         
-        var bSuccess:Bool = false
+
         if (bActivePhotos) {
             bSuccess = store.saveActivePhotos()
         } else {
@@ -215,6 +229,7 @@ class PhotosView: UIView,CAAnimationDelegate {
         }
         
         bSavingInProgress = false
+        return bSuccess
     }
     
     func fetchAndConfigureImage(aPhoto:Photo) {
