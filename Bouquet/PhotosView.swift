@@ -23,6 +23,86 @@ class PhotosView: UIView,CAAnimationDelegate {
     //basket image view for favorites basket
     var basketImageView:UIImageView? = nil
     
+    /// Container views which serve as a context for the view transition
+    var containerViews = [String:UIView]()
+    
+    /// Views which are exchanged with image views for the view transition
+    var metaDataViews = [String:UIView?]()
+    
+    /// image views for the view transition
+    var imageViews = [String:UIView?]()
+    
+    
+    required init?(coder aDecoder: NSCoder) {
+        super.init(coder: aDecoder)
+
+        let nc = NotificationCenter.default // Note that default is now a property, not a method call
+        nc.addObserver(forName:Notification.Name(rawValue:"doubleTapNotification"),
+                       object:nil, queue:nil,
+                       using:handleDoubleTapNotification)
+        
+        //animationStopped Notification handler
+        nc.addObserver(forName:Notification.Name(rawValue:"animationFinishedNotification"),
+                       object:nil, queue:nil,
+                       using:handleAnimationFinishedNotification)
+    }
+    
+    
+    func handleAnimationFinishedNotification(notification:Notification) -> Void {
+        guard let userInfo = notification.userInfo,
+            let aSubView = userInfo["subView"] else {
+                print("no user info found in notifiction")
+                return
+        }
+        
+        if let imageView = aSubView as? PhotoImageView {
+            self.imageViews.removeValue(forKey: imageView.photo.photoID)
+            //remove the container view
+            self.containerViews.removeValue(forKey: imageView.photo.photoID)
+        }
+        
+        if let metaDataView = aSubView as? MetaDataView {
+            self.metaDataViews.removeValue(forKey: metaDataView.photo.photoID)
+            //remove the container view
+            self.containerViews.removeValue(forKey: metaDataView.photo.photoID)
+        }
+    }
+
+    
+    func handleDoubleTapNotification(notification:Notification) -> Void {
+          guard let userInfo = notification.userInfo,
+                let aSubView = userInfo["subView"],
+                let _ = userInfo["gestureRecognizer"] else {
+            print("no user info found in notifiction")
+            return
+        }
+        
+        let options:UIViewAnimationOptions = [.transitionFlipFromLeft , .allowUserInteraction]
+        
+        if let imageView = aSubView as? PhotoImageView {
+            let metaDataView = self.metaDataViews[imageView.photo.photoID]
+            
+            if let aMetaDataView = metaDataView {
+                UIView.transition(from: imageView, to: aMetaDataView!, duration: 2.5, options: options)
+                {(finished: Bool) in
+                    
+                }
+            }
+        }
+        
+        if let metaDataView = aSubView as? MetaDataView {
+            let imageView = self.imageViews[(metaDataView.photo.photoID)]
+            
+            if let anImagView = imageView {
+                UIView.transition(from: metaDataView, to: anImagView!, duration: 2.5, options: options)
+                {(finished: Bool) in
+                    
+                }
+            }
+            
+        }
+    }
+    
     override func willRemoveSubview(_ subview: UIView) {
         
         if (bSavingInProgress) {
@@ -61,67 +141,77 @@ class PhotosView: UIView,CAAnimationDelegate {
     }
     
     //load saved photos
-    func loadSavedPhotos() {
-        store.loadSavedPhotos {
-            [weak self](photosResult) -> Void in
-            switch (photosResult) {
-            case let .success(photos):
-                print("Sucessfully loaded \(photos.count)")
-                
-                self?.flowerCount = photos.count
-                
-                //reinitialize the flower removed count
-                self?.flowerRemoved = 0
-                
-                //search photos from flickr if count is zero.
-                if (photos.count == 0) {
-                    self?.searchPhotos()
+    func loadSavedPhotos(bActivePhotos:Bool) {
+
+        var photos:[Photo]? = nil
+        if (bActivePhotos) {
+            photos = (store.loadActivePhotos() ?? nil)
+        } else {
+            photos = (store.loadPhotos() ?? nil)
+        }
+        
+        if (photos == nil) {
+            self.searchPhotos()
+            return
+        }
+        
+        self.flowerCount = (photos?.count)!
+        
+        //reinitialize the flower removed count
+        self.flowerRemoved = 0
+        
+        //search photos from flickr if count is zero - not likely to hit
+        //this condition since the upper check for nil will hit.
+        if (photos?.count == 0) {
+            self.searchPhotos()
+            return
+        }
+        
+        if (bActivePhotos) {
+            for aPhoto in photos! {
+                let aContainerView:ContainerView? = self.containerViews[aPhoto.photoID] as? ContainerView
+                if (aContainerView != nil) {
+                    if (aPhoto.bIsPaused == false) {
+                        aContainerView?.reAddAnimation()
+                    }
                 }
-                
-                //iterate through the list and randomly place images on the screeen
-                for aPhoto in photos {
-                    self?.fetchAndConfigureImage(aPhoto: aPhoto)
-                }
-                
-            case let .failure(error):
-                print("Error loading photos \(error)")
+            }
+        } else  {
+            for aPhoto in photos! {
+                self.fetchAndConfigureImage(aPhoto: aPhoto)
             }
         }
     }
     
     //saved photos
-    func savePhotos() {
+    func savePhotos(bActivePhotos:Bool) {
         
         bSavingInProgress = true
         
         //remove all the photos - only store the photos which are active on the screen
-        store.removeAllPhotos()
+        if (bActivePhotos) {
+            store.removeAllActivePhotos()
+        }
         
-        for aSubview in self.subviews {
-            if let anImageView = aSubview as? PhotoImageView {
-                
-                //save the frame, position and the duration when the app moves in the background.
-                anImageView.photo?.setFrame(frame: anImageView.frame)
-                anImageView.photo?.setPosition(position: anImageView.layer.position)
-                anImageView.photo?.setDuration(aDuration: anImageView.duration!)
-                
-                //save in stores photos collection for the active subview on the screen
-                store.allPhotos.updateValue(anImageView.photo!, forKey: (anImageView.photo?.photoID)!)
-                
-                //remove it from the screen
-                anImageView.removeFromSuperview()
-                anImageView.layer.removeAnimation(forKey: "move")
-                anImageView.image = nil
-                print("removing::child subview count:\(self.subviews.count)")
+        if (bActivePhotos) {
+            for aSubview in self.subviews {
+                if let aContainerView = aSubview as? ContainerView {
+                    //store the duration property
+                    aContainerView.photo.setFrame(frame: aContainerView.frame)
+                    aContainerView.photo.setPosition(position: aContainerView.layer.position)
+                    aContainerView.photo.setDuration(aDuration: aContainerView.duration)
+                    aContainerView.photo.isPaused(bIsPaused: aContainerView.bPaused)
+                    store.activePhotos.updateValue(aContainerView.photo, forKey: aContainerView.photo.photoID)
+                }
             }
         }
         
-        let success = store.savePhotos()
-        if (success) {
-            print("saved all of the \(store.allPhotos.count) photos")
-
+        
+        var bSuccess:Bool = false
+        if (bActivePhotos) {
+            bSuccess = store.saveActivePhotos()
         } else {
-            print("could not save photos")
+            bSuccess = store.savePhotos()
         }
         
         bSavingInProgress = false
@@ -149,10 +239,11 @@ class PhotosView: UIView,CAAnimationDelegate {
                 }
                 
                 //create a UIImageview object from the data loaded from the internet (flickrAPI)
-                let anImageView = PhotoImageView(frame: imageRect, imageData: image, aPhoto :aPhoto)
+                var imageData:UIImage? = image
+                let anImageView = PhotoImageView(frame: imageRect, imageData: &imageData, aPhoto :aPhoto)
                 
                 //basket view to drop the UIImageView
-                anImageView.basketImageView = self.basketImageView
+                //anImageView.basketImageView = self.basketImageView
                 
                 if (aPhoto.frame != CGRect.zero) {
                     //retrive the position from the saved photo
@@ -176,19 +267,44 @@ class PhotosView: UIView,CAAnimationDelegate {
                 //save the duration - to readd it later
                 anImageView.duration = randomDuration
                 
+                
+                //creating a containerView specifically for flip transition
+                let containerView = ContainerView(frame: imageRect, aPhoto:aPhoto,duration:randomDuration)
+                containerView.isOpaque = false
+                containerView.backgroundColor = UIColor.clear
+                containerView.isUserInteractionEnabled = true
+                self.containerViews.updateValue(containerView, forKey: aPhoto.photoID)
+                
                 let movement = CABasicAnimation(keyPath: "position")
                 movement.fromValue = NSValue(cgPoint: imagePosition)
                 movement.toValue = NSValue(cgPoint: toPoint)
-                movement.duration = randomDuration                
+                movement.duration = randomDuration
                 movement.delegate = self
-                //store a key value pair reference to imageview
-                movement.setValue(anImageView, forKey: "imageView")
                 
-                anImageView.layer.position = toPoint
-                anImageView.layer.add(movement, forKey: "move")
+                //store a key value pair reference to imageContainerView
+                movement.setValue(containerView, forKey: "containerView")
                 
-                //add imageView to the root view as a subview
-                self.addSubview(anImageView)
+                containerView.layer.position = toPoint
+                containerView.layer.add(movement, forKey: "move")
+                
+                self.addSubview(containerView)
+                anImageView.frame = anImageView.bounds
+                containerView.addSubview(anImageView)
+                
+                //append it to imageviews used for transition
+                
+                if var oldImageView = self.imageViews.updateValue(anImageView, forKey: aPhoto.photoID) {
+                    oldImageView = nil
+                }
+                
+                self.imageViews.updateValue(anImageView, forKey: aPhoto.photoID)
+                
+                //store the metadata view correpsonding to the image
+                let metaDataView:MetaDataView = MetaDataView(frame: anImageView.frame, aPhoto: aPhoto)
+                if var oldMetaDataView = self.metaDataViews.updateValue(metaDataView, forKey: aPhoto.photoID)
+                {
+                    oldMetaDataView = nil
+                }
                 
                 print("adding::total child subview count:\(self.subviews.count)")
                 
@@ -251,15 +367,25 @@ class PhotosView: UIView,CAAnimationDelegate {
      */
     func animationDidStop(_ anim: CAAnimation, finished flag: Bool) {
         if (flag) {
-            var anImageView:PhotoImageView? = anim.value(forKey: "imageView") as? PhotoImageView
-            if (anImageView != nil) {
-                anImageView?.removeFromSuperview()
-                anImageView?.layer.removeAnimation(forKey: "move")
-                anImageView?.image = nil
-                anImageView = nil
+            let aContainerView:ContainerView? = anim.value(forKey: "containerView") as? ContainerView
+            if (aContainerView != nil) {
+                for aSubview in (aContainerView?.subviews)! {
+                    if let anImageView = aSubview as? PhotoImageView {
+                        self.imageViews.removeValue(forKey: anImageView.photo.photoID)
+                        anImageView.removeFromSuperview()
+                        anImageView.image = nil
+                    }
+                    
+                    if let aMetaDataView = aSubview as? MetaDataView {
+                        aMetaDataView.removeFromSuperview()
+                        self.metaDataViews.removeValue(forKey: (aMetaDataView.photo.photoID))
+                    }
+                }
+                aContainerView?.removeFromSuperview()
+                aContainerView?.layer.removeAllAnimations()
+                self.containerViews.removeValue(forKey: (aContainerView?.photo.photoID)!)
                 print("removing::child subview count:\(self.subviews.count)")
             }
-            
         }
     }
 }

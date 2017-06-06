@@ -18,6 +18,12 @@ enum PhotoError: Error {
     case imageCreationError
 }
 
+
+enum PhotoLoadingError: Error {
+    case failedToLoadDataError
+}
+
+
 enum PhotosResult {
     case success([Photo])
     case failure(Error)
@@ -25,7 +31,12 @@ enum PhotosResult {
 
 class PhotoStore {
     
+    //this is photo dictionary saved between launches
+    //it helps with usecase when the the internet is offline we can still load the photos
     var allPhotos = [String:Photo]()
+    
+    //list of photos active on the screen between suspend (going into background and active state)
+    var activePhotos = [String:Photo]()
     
     let imageStore = ImageStore()
     
@@ -46,6 +57,14 @@ class PhotoStore {
         let documentDirectories = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
         let documentDirectory = documentDirectories.first!
         return documentDirectory.appendingPathComponent("photos.archive")
+    } ()
+
+    
+    //path to activephotos.archive
+    private let activePhotoArchiveURL:URL = {
+        let documentDirectories = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
+        let documentDirectory = documentDirectories.first!
+        return documentDirectory.appendingPathComponent("activephotos.archive")
     } ()
     
     private func processPhotosRequest(data:Data?, error: Error?) -> PhotosResult {
@@ -77,13 +96,32 @@ class PhotoStore {
         }
         task.resume()
     }
+
     
+    func loadActivePhotos() -> [Photo]? {
+        if let archivedPhotos = NSKeyedUnarchiver.unarchiveObject(withFile: activePhotoArchiveURL.path) as? [String:Photo] {
+            
+            //loaded photo count
+            print("load  active \(archivedPhotos.count) photos between foreground and background state " )
+            
+            for (key, value) in archivedPhotos {
+                self.activePhotos.updateValue(value, forKey: key)
+            }
+            
+            var arrPhotos = [Photo]()
+            for (_, value) in self.activePhotos {
+                arrPhotos.append(value)
+            }
+            return arrPhotos
+        }
+        return nil
+    }
     
-    func loadSavedPhotos(completion:@escaping (PhotosResult) -> Void) {
+    func loadPhotos() -> [Photo]? {
         if let archivedPhotos = NSKeyedUnarchiver.unarchiveObject(withFile: photoArchiveURL.path) as? [String:Photo] {
             
             //loaded photo count
-            print("loaded \(archivedPhotos.count) photos " )
+            print("load \(archivedPhotos.count) photos between launches" )
             
             for (key, value) in archivedPhotos {
                 self.allPhotos.updateValue(value, forKey: key)
@@ -94,21 +132,29 @@ class PhotoStore {
                 arrPhotos.append(value)
             }
             
-            OperationQueue.main.addOperation {
-                completion(.success(arrPhotos))
-            }
-        }
+            return arrPhotos
+         }
+         return nil
     }
     
     func savePhotos() -> Bool {
-        print("saving photos to \(photoArchiveURL.path)")
-        return NSKeyedArchiver.archiveRootObject(allPhotos, toFile: photoArchiveURL.path)
+        print("saving \(self.allPhotos.count) photos to \(photoArchiveURL.path)")
+        return NSKeyedArchiver.archiveRootObject(self.allPhotos, toFile: photoArchiveURL.path)
+    }
+    
+    func saveActivePhotos() -> Bool {
+        print("saving \(self.activePhotos.count) active photos to \(activePhotoArchiveURL.path)")
+        return NSKeyedArchiver.archiveRootObject(self.activePhotos, toFile: activePhotoArchiveURL.path)
     }
     
     func removeAllPhotos() {
-        
         //remove all photo key-value pairs
         self.allPhotos.removeAll()
+    }
+    
+    func removeAllActivePhotos() {
+        //remove all active photos list
+        self.activePhotos.removeAll()
     }
     
     func fetchImage(for photo:Photo , completion:@escaping (ImageResult) -> Void) {
@@ -125,7 +171,10 @@ class PhotoStore {
         }
         
         let photoURL = photo.remoteURL
-        let request = URLRequest(url: photoURL)
+        var request = URLRequest(url: photoURL)
+        
+        //caching policy to load from local cache - else go back to original source (remote source)
+        request.cachePolicy = NSURLRequest.CachePolicy.returnCacheDataElseLoad
         
         let task = session.dataTask(with: request) {
             (data, response, error) -> Void in

@@ -73,6 +73,8 @@ struct FlickrAPI {
         do {
             let jsonObject = try JSONSerialization.jsonObject(with: data,
                                                           options: [])
+//          print(jsonObject)
+            
             guard
                 let jsonDictionary = jsonObject as? [AnyHashable:Any],
                 let photos = jsonDictionary["photos"] as? [String:Any],
@@ -98,6 +100,32 @@ struct FlickrAPI {
     }
     
     private static func photo(fromJSON json:[String:Any]) -> Photo? {
+        
+        //special handling for photoWidth and photoHeight since sometimes it is getting
+        //returned as NSString and other times as NSNumber - so this below handles both
+        //cases
+        var photoHeight:Int=0
+        var photoWidth:Int=0
+        
+        for (jsonKey,jsonValue) in json {
+            switch jsonKey {
+            case "height_h":
+                if let aJsonValue=jsonValue as? NSNumber {
+                    photoHeight = Int(aJsonValue)
+                } else if let aJsonValue=jsonValue as? String {
+                    photoHeight = Int(aJsonValue)!
+                }
+            case "width_h":
+                if let aJsonValue=jsonValue as? NSNumber {
+                    photoWidth = Int(aJsonValue)
+                } else if let aJsonValue=jsonValue as? String {
+                    photoWidth = Int(aJsonValue)!
+                }
+            default :
+                break
+            }
+        }
+        
         guard
             let photoID = json["id"] as? String,
             let title = json["title"] as? String,
@@ -109,6 +137,6 @@ struct FlickrAPI {
                 return nil
         }
     
-        return Photo(title: title, photoID: photoID, remoteURL: url, dateTaken: dateTaken);
+        return Photo(title: title, photoID: photoID, remoteURL: url, dateTaken: dateTaken, width:photoWidth,height:photoHeight);
      }
 }

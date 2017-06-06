@@ -32,17 +32,19 @@ class PhotosViewController: UIViewController, CAAnimationDelegate {
         NotificationCenter.default.addObserver(self, selector:#selector(PhotosViewController.appDidEnterBackground), name:
             NSNotification.Name.UIApplicationDidEnterBackground, object: nil)
         
-        //load any saved photos
-        photosView.loadSavedPhotos()
+        //load any saved photos between launch sessions and could be internet is not available
+        //we want all the photos even the ones which are not displayed when we were terminated
+        //last time.
+        photosView.loadSavedPhotos(bActivePhotos: false)
     }
     
     
     func appBecomesActive() -> Void {
-        photosView.loadSavedPhotos()
+        photosView.loadSavedPhotos(bActivePhotos: true)
     }
     
     func appDidEnterBackground() -> Void {
-        photosView.savePhotos()
+        photosView.savePhotos(bActivePhotos:true) //true to save only active photos on the screen
     }
     
     deinit {

@@ -9,26 +9,28 @@
 import UIKit
 
 class ImageStore {
-    let cache = NSCache<NSString,UIImage>()
+    
+    //comenting the cache since don't want to keep big images in cache - so persisting them on disk
+    //let cache = NSCache<NSString,UIImage>()
 
     func image(forKey key:String) -> UIImage? {
         
-        if let existingImage = cache.object(forKey: key as NSString) {
+        /*if let existingImage = cache.object(forKey: key as NSString) {
             return existingImage
-        }
+        }*/
         
         let url = imageURL(forKey: key)
         guard let imageFromDisk = UIImage(contentsOfFile: url.path) else {
             return nil;
         }
         
-        cache.setObject(imageFromDisk, forKey: key as NSString);
+        //cache.setObject(imageFromDisk, forKey: key as NSString);
         return imageFromDisk
     }
 
     
     func setImage(_ image:UIImage, forKey key:String) {
-        cache.setObject(image, forKey: key as NSString)
+        //cache.setObject(image, forKey: key as NSString)
         
         let url = imageURL(forKey: key);
         
@@ -38,7 +40,7 @@ class ImageStore {
     }
     
     func deleteImage(forKey key:String) {
-        cache.removeObject(forKey: key as NSString)
+        //cache.removeObject(forKey: key as NSString)
         let url = imageURL(forKey: key)
         do {
             try FileManager.default.removeItem(at: url)
