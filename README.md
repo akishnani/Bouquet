@@ -45,8 +45,8 @@ Areas where need help:
 -----
 Verion 1.5
 
-—   saving retrieved images for faster relaunch user experience so user can be in the offline mode and we can still retrieve the saved photos
-—   saving active photos displayed on the screen whether they are paused or in motion - so can restore them in between moving seamlessly between background to foreground/active state
+-   saving retrieved images for faster relaunch user experience so user can be in the offline mode and we can still retrieve the saved photos
+-   saving active photos displayed on the screen whether they are paused or in motion - so can restore them in between moving seamlessly between background to foreground/active state
 -   added support for double tap which causes a “flip” animation to display the user meta data
 
 -----
