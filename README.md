@@ -43,6 +43,13 @@ Areas where need help:
 ©2017 Amit Kishnani
 
 -----
+Verion 1.5
+
+—   saving retrieved images for faster relaunch user experience - user can be in the offline mode and we can still retrieve the saved photos
+—   saving active photos displayed on the screen whether they are paused or in motion - so can restore them in between moving seamlessly between background to foreground/active state
+-   added support for double tap which causes a “flip” animation to display the user meta data
+
+-----
 
 Version 1.4 persistence flower state and velocity and continuous stream of flowers (May 31, 2017)
 
