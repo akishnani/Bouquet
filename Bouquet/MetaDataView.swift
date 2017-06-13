@@ -18,13 +18,16 @@ class MetaDataView: UIView {
     override func draw(_ rect: CGRect) {
         // Drawing code
         guard let context = UIGraphicsGetCurrentContext() else {return}
+        
+        //inset the rect by 1pxiel
+        let drawRect:CGRect = rect.insetBy(dx: 1.0, dy: 1.0)
 
-        context.addEllipse(in: rect)
+        context.addEllipse(in: drawRect)
         context.setFillColor(UIColor.yellow.cgColor)
         context.fillPath()
         context.setLineWidth(1.0)
         context.setStrokeColor(UIColor.black.cgColor)
-        context.strokeEllipse(in: rect)
+        context.strokeEllipse(in: drawRect)
         
         
         //draw the string
@@ -35,7 +38,7 @@ class MetaDataView: UIView {
         let fontSize = radius/5
         let font = UIFont(name: "AvenirNext-Regular", size: fontSize)
        
-//        let metaDataInfo = "title:\(photo.title)\nwidth:\(photo.width)\nheight:\(photo.height)"
+        //let metaDataInfo = "title:\(photo.title)\nwidth:\(photo.width)\nheight:\(photo.height)"
         let metaDataInfo = "width:\(photo.width)\nheight:\(photo.height)"
 
         let displayString = NSString(string: metaDataInfo)

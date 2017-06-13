@@ -46,5 +46,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             print("successfully saved \(store.allPhotos.count) photos")
         }
     }
+    
+    func applicationDidReceiveMemoryWarning(_ application: UIApplication) {
+        print("app delegate::received memory warning")
+    }
 }
 

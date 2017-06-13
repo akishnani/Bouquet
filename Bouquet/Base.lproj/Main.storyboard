@@ -7,6 +7,7 @@
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="12088"/>
         <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
+        <capability name="Constraints with non-1.0 multipliers" minToolsVersion="5.1"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -23,17 +24,15 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="FavoritesBasket" translatesAutoresizingMaskIntoConstraints="NO" id="KWE-Vq-zfd">
-                                <rect key="frame" x="268" y="568" width="91" height="91"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="91" id="DiJ-iv-XUx"/>
-                                    <constraint firstAttribute="width" constant="91" id="aod-we-N61"/>
-                                </constraints>
+                                <rect key="frame" x="284" y="525.5" width="75" height="133.5"/>
                             </imageView>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
+                            <constraint firstItem="KWE-Vq-zfd" firstAttribute="height" secondItem="8bC-Xf-vdC" secondAttribute="height" multiplier="0.2" id="8im-TI-DQ1"/>
                             <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="KWE-Vq-zfd" secondAttribute="bottom" constant="8" id="PUD-QT-Kc4"/>
                             <constraint firstItem="KWE-Vq-zfd" firstAttribute="trailing" secondItem="8bC-Xf-vdC" secondAttribute="trailingMargin" id="bPw-Pd-EUs"/>
+                            <constraint firstItem="KWE-Vq-zfd" firstAttribute="width" secondItem="8bC-Xf-vdC" secondAttribute="width" multiplier="0.2" id="raD-kc-I8g"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" title="Bouquet" id="isJ-an-hey"/>

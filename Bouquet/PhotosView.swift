@@ -10,13 +10,16 @@ import UIKit
 
 class PhotosView: UIView,CAAnimationDelegate {
     
-    //max relaunch count the system memory can handle
-    //only restore the max following flowers from the saved state
-    let maxRelaunchFlowerCount = 40
+    let maxFlowerCount = 15 //account for basket view and its constraints = 3 subviews , so 12 views is max on the screen (1 dozen of flowers)
     
-    var flowerCount:Int = 0
-    var flowerRemoved:Int = 0
+    //number of outstanding calls to images to be fetched in pipeline - wait for these calls to return.
+    var pendingFetchFlowerCount = 0
+    
+    //saving is in progress
     var bSavingInProgress:Bool = false
+    
+    //if searching Flickr photos http call is in progress
+    var bHTTPRequestingPhoto = false
     
     //singleton photostore
     var store:PhotoStore = PhotoStore.sharedInstance
@@ -30,12 +33,17 @@ class PhotosView: UIView,CAAnimationDelegate {
     /// Container views which serve as a context for the view transition
     var containerViews = [String:UIView]()
     
-    /// Views which are exchanged with image views for the view transition
+    /// metadata which are exchanged with image views for the view transition
     var metaDataViews = [String:UIView?]()
     
     /// image views for the view transition
     var imageViews = [String:UIView?]()
     
+    //photos array which consists of photos still to be fetched - managed by inventoryUpdate method
+    var photosToBeFetched = [Photo]()
+    
+    //timer to re-request a new batch of flowers
+    weak var timer: Timer?
     
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
@@ -51,6 +59,63 @@ class PhotosView: UIView,CAAnimationDelegate {
                        using:handleAnimationFinishedNotification)
     }
     
+    
+    func viewWillAppear() {
+        timer = Timer.scheduledTimer(timeInterval: 0.5, target: self, selector: #selector(self.inventoryUpdate), userInfo: nil, repeats: true);
+    }
+    
+    func viewWillDisappear() {
+        if let timer = self.timer {
+            print("Suspending Inventory Update")
+            timer.invalidate()
+        }
+    }
+
+    
+    func inventoryUpdate() {
+        
+        //if the httprequest is in progress - skip this call.
+        if (self.bHTTPRequestingPhoto) {
+            return
+        }
+        
+        let nFlowerViewCount:Int = self.subviews.count
+        var httpFetchMore = false
+        let delta = self.maxFlowerCount - nFlowerViewCount
+        
+        if (delta > 0) {
+            if (self.photosToBeFetched.count >= delta) {
+                    if (self.pendingFetchFlowerCount == 0) {
+                        
+                        print("inventoryUpdate delta:\(delta) and  photosToBeFetched count:\(self.photosToBeFetched.count)")
+
+                        for  photoIndex in 0..<delta {
+                            //print("fetchAndConfigureImage::\(photoIndex)")
+                            self.fetchAndConfigureImage(aPhoto: photosToBeFetched[photoIndex])
+                        }
+                        
+                        //number of outstanding calls to images to be fetched in pipeline - wait for these calls to return.
+                        self.pendingFetchFlowerCount = delta
+                        
+                        //remove the elements from the array once they are fetched.
+                        for _ in 0..<delta {
+                            photosToBeFetched.remove(at: 0)
+                        }
+                    }
+            } else {
+                print("requesting more http data...")
+                httpFetchMore = true
+            }
+        } else {
+            return
+        }
+        
+        if (httpFetchMore) {
+            //do a new http request for new photos
+            print("inventoryUpdate::searchPhotos")
+            self.searchPhotos()
+        }
+    }
     
     func handleAnimationFinishedNotification(notification:Notification) -> Void {
         guard let userInfo = notification.userInfo,
@@ -107,39 +172,27 @@ class PhotosView: UIView,CAAnimationDelegate {
         }
     }
     
-    override func willRemoveSubview(_ subview: UIView) {
-        
-        if (bSavingInProgress) {
-            return
-        }
-
-        //update the flower removed count
-        flowerRemoved += 1
-        
-        if (flowerRemoved >= flowerCount) {
-            flowerRemoved = 0
-            self.searchPhotos()
-        }
-    }
-
-    
     func searchPhotos() {
+        
+        bHTTPRequestingPhoto = true
         
         store.searchPhotos {
             [weak self](photosResult) -> Void in
             
+            
             switch (photosResult) {
             case let .success(photos):
                 print("Sucessfully found \(photos.count)")
-                self?.flowerCount = photos.count
                 
-                //iterate through the list and randomly place images on the screeen
+                //iterate through the list and place them in array to be fetched later
                 for aPhoto in photos {
-                    self?.fetchAndConfigureImage(aPhoto: aPhoto)
+                    self?.photosToBeFetched.append(aPhoto)
                 }
+                self?.bHTTPRequestingPhoto = false
                 
             case let .failure(error):
                 print("Error searching photos \(error)")
+                self?.bHTTPRequestingPhoto = false
             }
         }
     }
@@ -155,14 +208,8 @@ class PhotosView: UIView,CAAnimationDelegate {
         }
         
         if (photos == nil) {
-            self.searchPhotos()
             return
         }
-        
-        self.flowerCount = (photos?.count)!
-        
-        //reinitialize the flower removed count
-        self.flowerRemoved = 0
         
         //search photos from flickr if count is zero - not likely to hit
         //this condition since the upper check for nil will hit.
@@ -181,17 +228,11 @@ class PhotosView: UIView,CAAnimationDelegate {
                 }
             }
         } else  {
-            var photoCount:Int! = photos?.count
-            if (photoCount > self.maxRelaunchFlowerCount) {
-                photoCount = self.maxRelaunchFlowerCount
-                self.flowerCount = photoCount
-            }
+            //store in the collection which is refreshed/managed by the inventory
+            let photoCount:Int! = photos?.count
             for index in 0..<photoCount {
-                self.fetchAndConfigureImage(aPhoto: (photos?[index])!)
+                self.photosToBeFetched.append((photos?[index])!)
             }
-//            for aPhoto in photos! {
-//                self.fetchAndConfigureImage(aPhoto: aPhoto)
-//            }
         }
     }
     
@@ -235,6 +276,9 @@ class PhotosView: UIView,CAAnimationDelegate {
     func fetchAndConfigureImage(aPhoto:Photo) {
         store.fetchImage(for: aPhoto) {
             (imageResult) -> Void in
+            
+            //decrement the pending flower count
+            self.pendingFetchFlowerCount = self.pendingFetchFlowerCount - 1
             
             switch imageResult {
             case let .success(image):
@@ -288,6 +332,7 @@ class PhotosView: UIView,CAAnimationDelegate {
                 containerView.isOpaque = false
                 containerView.backgroundColor = UIColor.clear
                 containerView.isUserInteractionEnabled = true
+                containerView.basketImageView = self.basketImageView
                 self.containerViews.updateValue(containerView, forKey: aPhoto.photoID)
                 
                 let movement = CABasicAnimation(keyPath: "position")
@@ -331,23 +376,17 @@ class PhotosView: UIView,CAAnimationDelegate {
     
     
     func calculateViewFrameForImageView()->CGRect {
-        
-        //calculate a random Point
-        let maxX:UInt32 = UInt32(self.frame.size.width)
-        let maxY:UInt32 = UInt32(self.frame.size.height)
-        
-        var aRandomPoint = CGPoint(x:Int(arc4random_uniform(maxX)),y:Int(arc4random_uniform(maxY)))
-        
+
         //get the nav bar height + status bar height
         let navBarHeight = (self.navController?.navigationBar.frame.size.height)! + UIApplication.shared.statusBarFrame.height
         
-        if (aRandomPoint.y < navBarHeight) {
-            //displace it by navBarHeight
-            aRandomPoint.y = aRandomPoint.y + navBarHeight
-        }
+        //calculate a random Point
+        let maxX:UInt32 = UInt32(self.frame.size.width)
+        
+        var aRandomPoint = CGPoint(x:Int(arc4random_uniform(maxX)),y:Int(arc4random_uniform(UInt32(navBarHeight))))
         
         //get a random width and height
-        let imageWidth:CGFloat = CGFloat(arc4random_uniform(200)) + 50
+        let imageWidth:CGFloat = CGFloat(arc4random_uniform(200)) + 100
         //make the imageWidth and height the same.
         let imageHeight:CGFloat = imageWidth
         

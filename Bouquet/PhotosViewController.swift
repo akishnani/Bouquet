@@ -47,6 +47,17 @@ class PhotosViewController: UIViewController, CAAnimationDelegate {
         photosView.savePhotos(bActivePhotos:true) //true to save only active photos on the screen
     }
     
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(true)
+        photosView.viewWillAppear()
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(true)
+        photosView.viewWillDisappear()
+    }
+    
     deinit {
         NotificationCenter.default.removeObserver(self)
     }
@@ -54,6 +65,6 @@ class PhotosViewController: UIViewController, CAAnimationDelegate {
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
-        print("received memory warning")
+        print("PhotosViewController::received memory warning")
     }
 }

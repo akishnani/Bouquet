@@ -36,6 +36,9 @@ class ContainerView: UIView, CAAnimationDelegate {
     //duration which determine the velocity
     var duration:CFTimeInterval
     
+    //favorites basket view
+    var basketImageView:UIImageView? = nil
+    
     //double tap notification
     let doubleTapNotificationName = Notification.Name("doubleTapNotification")
     
@@ -195,13 +198,14 @@ class ContainerView: UIView, CAAnimationDelegate {
             theTransform.ty = 0.0
             self.transform = theTransform
             
-//            //check if intersect with basket frame
+            //check if intersect with basket frame
 //            if (self.basketImageView?.frame.intersects(self.frame))! {
-//                self.layer.removeAnimation(forKey: "move")
-//                self.removeFromSuperview()
-//                self.image = nil
+//                //flag the animation as completed
+//                animationCompleted()
 //                return
 //            }
+            
+            
             
             //readd the animation which was removed temporarily
             if (!bPaused) {
@@ -264,28 +268,31 @@ class ContainerView: UIView, CAAnimationDelegate {
      */
     func animationDidStop(_ anim: CAAnimation, finished flag: Bool) {
         if (flag) {
-            
-            if (self.subviews.count > 0) {
-                let aSubView = subviews[0]
-                NotificationCenter.default.post(name: animationFinishedNotification, object: nil,
-                                                userInfo:["subView":aSubView])
-            }
-            
-            for aSubview in self.subviews {
-                if let anImageView = aSubview as? PhotoImageView {
-                    anImageView.removeFromSuperview()
-                    anImageView.image = nil
-                }
-                
-                if let aMetaDataView = aSubview as? MetaDataView {
-                    aMetaDataView.removeFromSuperview()
-                }
-            }
-            
-            self.removeFromSuperview()
+            animationCompleted()
         }
     }
     
+    func animationCompleted() {
+        if (self.subviews.count > 0) {
+            let aSubView = subviews[0]
+            NotificationCenter.default.post(name: animationFinishedNotification, object: nil,
+                                            userInfo:["subView":aSubView])
+        }
+        
+        for aSubview in self.subviews {
+            if let anImageView = aSubview as? PhotoImageView {
+                anImageView.removeFromSuperview()
+                anImageView.image = nil
+            }
+            
+            if let aMetaDataView = aSubview as? MetaDataView {
+                aMetaDataView.removeFromSuperview()
+            }
+        }
+        
+        self.layer.removeAllAnimations()
+        self.removeFromSuperview()        
+    }
     
     
 }
