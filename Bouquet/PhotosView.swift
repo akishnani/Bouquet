@@ -253,7 +253,8 @@ class PhotosView: UIView,CAAnimationDelegate {
                 viewingMode = .favorites
                 
                 //set the navigation title to favorites
-                self.navController?.navigationBar.topItem?.title = "Favorites"
+                let favoritesTitle = NSLocalizedString("Favorites", comment: "title for Favorites mode")
+                self.navController?.navigationBar.topItem?.title = favoritesTitle
                 
                 //remove all the container subviews
                 for aSubview in self.subviews {
@@ -276,7 +277,8 @@ class PhotosView: UIView,CAAnimationDelegate {
                 //toggle to normal mode
                 viewingMode = .normal
                 //set the navigation title to favorites
-                self.navController?.navigationBar.topItem?.title = "Bouquet"
+                let bouquetTitle = NSLocalizedString("Bouquet", comment: "title for normal bouquet mode")
+                self.navController?.navigationBar.topItem?.title = bouquetTitle
 
                 self.pendingFetchFlowerCount = 0
                 inventoryUpdate()

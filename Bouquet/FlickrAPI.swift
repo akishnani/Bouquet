@@ -35,12 +35,14 @@ struct FlickrAPI {
         
         var queryItems = [URLQueryItem]()
         
+        let searchTerm = NSLocalizedString("flower", comment: "Search term for flickr API")
+        
         let baseParams = [
             "method": method.rawValue,
             "format":"json",
             "nojsoncallback": "1",
             "api_key" : apiKey,
-            "text" : "flower",
+            "text" : searchTerm,
             "per_page" : "25"
         ]
         

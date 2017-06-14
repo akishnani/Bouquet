@@ -22,6 +22,8 @@ class PhotosViewController: UIViewController, CAAnimationDelegate {
         photosView.navController = self.navigationController
         photosView.basketImageView = basketImageView
         
+        let bouquetTitle = NSLocalizedString("Bouquet", comment: "title for normal bouquet mode")
+        self.navigationController?.navigationBar.topItem?.title = bouquetTitle
      
         //register for the notification app becomes active
         NotificationCenter.default.addObserver(self, selector:#selector(PhotosViewController.appBecomesActive), name:

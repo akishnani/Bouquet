@@ -22,18 +22,17 @@ Currently the project has the following features which are in working state:
 -   added favorites basket where user can drag and drop flowers into
 -   allowing users to only display images from favorite basket
 -   displaying the image meta data by double tapping on the flower
+-   adjust image keyword search according to user’s default language setting
 
 Features still to be implemented:
 
 -   ignoring users gestures on transparent areas of imageview
--   adjust image keyword search according to user’s default language setting.
 
 In order to run the project:
 
 -   please sync to github public repo : https://github.com/akishnani/Bouquet
 -   please connect the mobile device using the USB cable
 -   run the app on the device since the memory footprint is different than the memory footprint on the simulator
--   certain gestures like pinch only work on the device
 
 ©2017 Amit Kishnani
 
@@ -44,6 +43,9 @@ Verion 1.7
 -   added support for favorites basket - drag & drop into the basket increments the badge value
 -   double clicking on favorites basket - display only flowers from their favorites basket
 -   maximum favorites flower count is 12 (dozen) to better handle memory requirements
+-   adjust image keyword search according to user’s default language setting
+-   added support for the following languages ( spanish, german, hindi)
+
 
 -----
 Verion 1.6
