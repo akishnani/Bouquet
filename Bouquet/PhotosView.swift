@@ -127,7 +127,7 @@ class PhotosView: UIView,CAAnimationDelegate {
                         print("inventoryUpdate delta:\(delta) and  photosToBeFetched count:\(self.photosToBeFetched.count)")
 
                         for  photoIndex in 0..<delta {
-                            self.fetchAndConfigureImage(aPhoto: photosToBeFetched[photoIndex])
+                            self.fetchAndConfigureImage(aPhoto: photosToBeFetched[photoIndex], fetchMode: .normal)
                         }
                         
                         //number of outstanding calls to images to be fetched in pipeline - wait for these calls to return.
@@ -266,7 +266,7 @@ class PhotosView: UIView,CAAnimationDelegate {
                 
                 //load the images from the favorite collection
                 for aPhoto in self.favoritesPhotos {
-                    self.fetchAndConfigureImage(aPhoto: aPhoto)
+                    self.fetchAndConfigureImage(aPhoto: aPhoto, fetchMode:.favorites)
                 }
                 
                 //reset to zero
@@ -388,12 +388,18 @@ class PhotosView: UIView,CAAnimationDelegate {
         return bSuccess
     }
     
-    func fetchAndConfigureImage(aPhoto:Photo) {
+    func fetchAndConfigureImage(aPhoto:Photo, fetchMode:ViewingMode) {
         store.fetchImage(for: aPhoto) {
             (imageResult) -> Void in
             
-            //decrement the pending flower count
+            if ((fetchMode == .normal) && (self.viewingMode == .favorites))  {
+                //decrement the pending flower count
+                self.pendingFetchFlowerCount = self.pendingFetchFlowerCount - 1
+                return //most likely a outstanding request fired from the .normal mode returned when we are currently in the favorites mode
+            }
+            
             if (self.viewingMode == .normal) {
+                //decrement the pending flower count
                 self.pendingFetchFlowerCount = self.pendingFetchFlowerCount - 1
             }
             
