@@ -20,12 +20,12 @@ Currently the project has the following features which are in working state:
 -   continious stream of images
 -   uses the saved images for a faster launch
 -   added favorites basket where user can drag and drop flowers into
+-   allowing users to only display images from favorite basket
+-   displaying the image meta data by double tapping on the flower
 
 Features still to be implemented:
 
--   displaying the image meta data
 -   ignoring users gestures on transparent areas of imageview
--   allowing users to only display images from favorite basket
 -   adjust image keyword search according to user’s default language setting.
 
 In order to run the project:
@@ -35,12 +35,22 @@ In order to run the project:
 -   run the app on the device since the memory footprint is different than the memory footprint on the simulator
 -   certain gestures like pinch only work on the device
 
-Areas where need help:
-
--   double tap & flip movement to display image meta data
-
-
 ©2017 Amit Kishnani
+
+-----
+Verion 1.7
+
+-   added files from [TIPBadgeManager](https://github.com/johncosch/TIPBadgeManager) badge manager to be added to any view
+-   added support for favorites basket - drag & drop into the basket increments the badge value
+-   double clicking on favorites basket - display only flowers from their favorites basket
+-   maximum favorites flower count is 12 (dozen) to better handle memory requirements
+
+-----
+Verion 1.6
+
+-   instead of immediately putting the flowers on the screen - they are queued up in a collection called “photosToBeFetched” and incrementally /gradually added on the screen so the flow of flowers appear continuous
+-   to handle the above logic introduce a timer which runs every half second and does inventoryUpdate
+-   made the flower basket view proportional to superview - so it can scale up and down accordingly
 
 -----
 Verion 1.5

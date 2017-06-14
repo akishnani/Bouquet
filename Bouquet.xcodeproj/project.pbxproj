@@ -25,6 +25,9 @@
 		195E2EF41EE0126900E57C24 /* MetaDataView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 195E2EF31EE0126900E57C24 /* MetaDataView.swift */; };
 		195E2EF61EE1460900E57C24 /* ContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 195E2EF51EE1460900E57C24 /* ContainerView.swift */; };
 		19B2E80A1ED6BB2500B7BE15 /* PhotosView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19B2E8091ED6BB2500B7BE15 /* PhotosView.swift */; };
+		19E073A61EEFE08E0047B067 /* TIPBadgeManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19E073A31EEFE08E0047B067 /* TIPBadgeManager.swift */; };
+		19E073A71EEFE08E0047B067 /* TIPBadgeObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19E073A41EEFE08E0047B067 /* TIPBadgeObject.swift */; };
+		19E073A81EEFE08E0047B067 /* TIPBadgeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19E073A51EEFE08E0047B067 /* TIPBadgeView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -70,6 +73,9 @@
 		195E2EF31EE0126900E57C24 /* MetaDataView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MetaDataView.swift; sourceTree = "<group>"; };
 		195E2EF51EE1460900E57C24 /* ContainerView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContainerView.swift; sourceTree = "<group>"; };
 		19B2E8091ED6BB2500B7BE15 /* PhotosView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PhotosView.swift; sourceTree = "<group>"; };
+		19E073A31EEFE08E0047B067 /* TIPBadgeManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TIPBadgeManager.swift; sourceTree = "<group>"; };
+		19E073A41EEFE08E0047B067 /* TIPBadgeObject.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TIPBadgeObject.swift; sourceTree = "<group>"; };
+		19E073A51EEFE08E0047B067 /* TIPBadgeView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TIPBadgeView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -139,6 +145,9 @@
 				195E2EF31EE0126900E57C24 /* MetaDataView.swift */,
 				193006121EC67FF20022DBB2 /* PhotoImageView.swift */,
 				19B2E8091ED6BB2500B7BE15 /* PhotosView.swift */,
+				19E073A31EEFE08E0047B067 /* TIPBadgeManager.swift */,
+				19E073A41EEFE08E0047B067 /* TIPBadgeObject.swift */,
+				19E073A51EEFE08E0047B067 /* TIPBadgeView.swift */,
 			);
 			path = Bouquet;
 			sourceTree = "<group>";
@@ -308,8 +317,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				19E073A81EEFE08E0047B067 /* TIPBadgeView.swift in Sources */,
 				195E2EF61EE1460900E57C24 /* ContainerView.swift in Sources */,
 				1926E45B1EBD937F003416E2 /* FlickrAPI.swift in Sources */,
+				19E073A71EEFE08E0047B067 /* TIPBadgeObject.swift in Sources */,
 				195E2EF41EE0126900E57C24 /* MetaDataView.swift in Sources */,
 				1926E42F1EBD8942003416E2 /* PhotosViewController.swift in Sources */,
 				1926E45D1EBD989D003416E2 /* PhotoStore.swift in Sources */,
@@ -318,6 +329,7 @@
 				193006131EC67FF20022DBB2 /* PhotoImageView.swift in Sources */,
 				1926E42D1EBD8942003416E2 /* AppDelegate.swift in Sources */,
 				1926E45F1EBDA1F7003416E2 /* Photo.swift in Sources */,
+				19E073A61EEFE08E0047B067 /* TIPBadgeManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

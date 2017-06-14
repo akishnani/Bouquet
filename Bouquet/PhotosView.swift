@@ -8,6 +8,11 @@
 
 import UIKit
 
+enum ViewingMode {
+    case normal
+    case favorites
+}
+
 class PhotosView: UIView,CAAnimationDelegate {
     
     let maxFlowerCount = 15 //account for basket view and its constraints = 3 subviews , so 12 views is max on the screen (1 dozen of flowers)
@@ -42,13 +47,21 @@ class PhotosView: UIView,CAAnimationDelegate {
     //photos array which consists of photos still to be fetched - managed by inventoryUpdate method
     var photosToBeFetched = [Photo]()
     
+    //favorites photos
+    var favoritesPhotos = [Photo]()
+    
+    //default viewing mode
+    var viewingMode:ViewingMode = ViewingMode.normal
+    
     //timer to re-request a new batch of flowers
     weak var timer: Timer?
     
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
-
-        let nc = NotificationCenter.default // Note that default is now a property, not a method call
+        
+        let nc = NotificationCenter.default
+        
+        //doubleTapNotification on image view to do the flip animation.
         nc.addObserver(forName:Notification.Name(rawValue:"doubleTapNotification"),
                        object:nil, queue:nil,
                        using:handleDoubleTapNotification)
@@ -57,10 +70,28 @@ class PhotosView: UIView,CAAnimationDelegate {
         nc.addObserver(forName:Notification.Name(rawValue:"animationFinishedNotification"),
                        object:nil, queue:nil,
                        using:handleAnimationFinishedNotification)
+        
+        //animationStopped Notification handler
+        nc.addObserver(forName:Notification.Name(rawValue:"addToFavoritesNotification"),
+                       object:nil, queue:nil,
+                       using:handleAddToFavoritesNotification)
+        
+        //add a double tap gesture on photos view
+        let doubleTapRecognizer = UITapGestureRecognizer(target: self, action: #selector(PhotosView.doubleTap(_:)))
+        doubleTapRecognizer.numberOfTapsRequired = 2
+        doubleTapRecognizer.delaysTouchesBegan = true
+        addGestureRecognizer(doubleTapRecognizer)
     }
     
-    
     func viewWillAppear() {
+        
+        //initialize the badge manager instance and register the view
+        let aBadgeValue = TIPBadgeManager.sharedInstance.getBadgeValue("favoritesBadge")
+        if aBadgeValue == nil {
+            TIPBadgeManager.sharedInstance.addBadgeSuperview("favoritesBadge", view: self.basketImageView!)
+            TIPBadgeManager.sharedInstance.setBadgeValue("favoritesBadge", value: 0)
+        }
+
         timer = Timer.scheduledTimer(timeInterval: 0.5, target: self, selector: #selector(self.inventoryUpdate), userInfo: nil, repeats: true);
     }
     
@@ -74,10 +105,16 @@ class PhotosView: UIView,CAAnimationDelegate {
     
     func inventoryUpdate() {
         
-        //if the httprequest is in progress - skip this call.
+        //if the favorites mode is on - skip the update cycle which is only used in .normal mode
+        if (viewingMode == .favorites) {
+            return
+        }
+
+        //if the httprequest is in progress - skip the update cycle
         if (self.bHTTPRequestingPhoto) {
             return
         }
+        
         
         let nFlowerViewCount:Int = self.subviews.count
         var httpFetchMore = false
@@ -90,7 +127,6 @@ class PhotosView: UIView,CAAnimationDelegate {
                         print("inventoryUpdate delta:\(delta) and  photosToBeFetched count:\(self.photosToBeFetched.count)")
 
                         for  photoIndex in 0..<delta {
-                            //print("fetchAndConfigureImage::\(photoIndex)")
                             self.fetchAndConfigureImage(aPhoto: photosToBeFetched[photoIndex])
                         }
                         
@@ -114,7 +150,7 @@ class PhotosView: UIView,CAAnimationDelegate {
             //do a new http request for new photos
             print("inventoryUpdate::searchPhotos")
             self.searchPhotos()
-        }
+        }            
     }
     
     func handleAnimationFinishedNotification(notification:Notification) -> Void {
@@ -172,6 +208,83 @@ class PhotosView: UIView,CAAnimationDelegate {
         }
     }
     
+    func handleAddToFavoritesNotification(notification:Notification) -> Void {
+        guard let userInfo = notification.userInfo,
+            let aPhoto = userInfo["photo"] else {
+                print("no user info found in notifiction")
+                return
+        }
+        
+        if (viewingMode == .favorites) {
+            //dont' add flowers to basket in favorites mode
+            return
+        }
+        
+        //store the added image in favorites collection - keep a max of 12 flowers
+        if let photo = aPhoto as? Photo {
+            if (self.favoritesPhotos.count < maxFlowerCount - 3) {
+                let aBadgeValue = TIPBadgeManager.sharedInstance.getBadgeValue("favoritesBadge")
+                if var badgeVal = aBadgeValue {
+                    badgeVal += 1
+                    TIPBadgeManager.sharedInstance.setBadgeValue("favoritesBadge", value: badgeVal)
+                }
+                self.favoritesPhotos.append(photo)
+            }
+        }
+    }
+    
+    /*
+     * double tap on the basket view - loads the favorite photos
+     */
+    func doubleTap(_ gestureRecognizer:UIGestureRecognizer) {
+        //send a notification so that PhotosView can respond
+        let point = gestureRecognizer.location(in: self)
+        let basketRect = self.basketImageView?.frame
+        if (basketRect?.contains(point))! {
+            
+            switch viewingMode {
+            case .normal:
+                //if no flowers have been added in the basket then return
+                if (self.favoritesPhotos.count == 0) {
+                    return
+                }
+                
+                //toggle to favorites mode
+                viewingMode = .favorites
+                
+                //set the navigation title to favorites
+                self.navController?.navigationBar.topItem?.title = "Favorites"
+                
+                //remove all the container subviews
+                for aSubview in self.subviews {
+                    if let aContainerView = aSubview as? ContainerView {
+                        removeContainerView(aContainerView: aContainerView)
+                    }
+                }
+    
+                
+                //load the images from the favorite collection
+                for aPhoto in self.favoritesPhotos {
+                    self.fetchAndConfigureImage(aPhoto: aPhoto)
+                }
+                
+                //reset to zero
+                self.favoritesPhotos.removeAll()
+                TIPBadgeManager.sharedInstance.setBadgeValue("favoritesBadge", value: 0)
+
+            case .favorites:
+                //toggle to normal mode
+                viewingMode = .normal
+                //set the navigation title to favorites
+                self.navController?.navigationBar.topItem?.title = "Bouquet"
+
+                self.pendingFetchFlowerCount = 0
+                inventoryUpdate()
+            }
+        }
+    }
+    
+    
     func searchPhotos() {
         
         bHTTPRequestingPhoto = true
@@ -228,7 +341,7 @@ class PhotosView: UIView,CAAnimationDelegate {
                 }
             }
         } else  {
-            //store in the collection which is refreshed/managed by the inventory
+            //store in the photosToBeFetched collection which is managed by the inventory
             let photoCount:Int! = photos?.count
             for index in 0..<photoCount {
                 self.photosToBeFetched.append((photos?[index])!)
@@ -278,7 +391,9 @@ class PhotosView: UIView,CAAnimationDelegate {
             (imageResult) -> Void in
             
             //decrement the pending flower count
-            self.pendingFetchFlowerCount = self.pendingFetchFlowerCount - 1
+            if (self.viewingMode == .normal) {
+                self.pendingFetchFlowerCount = self.pendingFetchFlowerCount - 1
+            }
             
             switch imageResult {
             case let .success(image):
@@ -311,7 +426,7 @@ class PhotosView: UIView,CAAnimationDelegate {
         
                 //add an explicit animation
                 let toX = imagePosition.x
-                let toY = self.frame.size.height + imageRect.size.height/2
+                let toY = self.frame.size.height + imageRect.size.height
                 let toPoint = CGPoint(x: toX, y: toY)
                 var randomDuration:CFTimeInterval = 0.0
                 
@@ -345,6 +460,7 @@ class PhotosView: UIView,CAAnimationDelegate {
                 movement.setValue(containerView, forKey: "containerView")
                 
                 containerView.layer.position = toPoint
+                containerView.layer.fillMode = kCAFillModeForwards
                 containerView.layer.add(movement, forKey: "move")
                 
                 self.addSubview(containerView)
@@ -423,23 +539,28 @@ class PhotosView: UIView,CAAnimationDelegate {
         if (flag) {
             let aContainerView:ContainerView? = anim.value(forKey: "containerView") as? ContainerView
             if (aContainerView != nil) {
-                for aSubview in (aContainerView?.subviews)! {
-                    if let anImageView = aSubview as? PhotoImageView {
-                        self.imageViews.removeValue(forKey: anImageView.photo.photoID)
-                        anImageView.removeFromSuperview()
-                        anImageView.image = nil
-                    }
-                    
-                    if let aMetaDataView = aSubview as? MetaDataView {
-                        aMetaDataView.removeFromSuperview()
-                        self.metaDataViews.removeValue(forKey: (aMetaDataView.photo.photoID))
-                    }
-                }
-                aContainerView?.removeFromSuperview()
-                aContainerView?.layer.removeAllAnimations()
-                self.containerViews.removeValue(forKey: (aContainerView?.photo.photoID)!)
-                print("removing::child subview count:\(self.subviews.count)")
+                removeContainerView(aContainerView: aContainerView!)
             }
         }
+    }
+    
+    
+    func removeContainerView(aContainerView:ContainerView) {
+        for aSubview in (aContainerView.subviews) {
+            if let anImageView = aSubview as? PhotoImageView {
+                self.imageViews.removeValue(forKey: anImageView.photo.photoID)
+                anImageView.removeFromSuperview()
+                anImageView.image = nil
+            }
+            
+            if let aMetaDataView = aSubview as? MetaDataView {
+                aMetaDataView.removeFromSuperview()
+                self.metaDataViews.removeValue(forKey: (aMetaDataView.photo.photoID))
+            }
+        }
+        aContainerView.layer.removeAllAnimations()
+        aContainerView.removeFromSuperview()
+        self.containerViews.removeValue(forKey: aContainerView.photo.photoID)
+        print("removing::child subview count:\(self.subviews.count)")
     }
 }

@@ -45,6 +45,9 @@ class ContainerView: UIView, CAAnimationDelegate {
     //handle animation finished notification
     let animationFinishedNotification = Notification.Name("animationFinishedNotification")
     
+    //adding to favorite basket notification
+    let addToFavoritesNotification = Notification.Name("addToFavoritesNotification")
+    
     
     //display link timer which updates on each screen refresh cycle
     fileprivate var timer: CADisplayLink?
@@ -163,7 +166,7 @@ class ContainerView: UIView, CAAnimationDelegate {
     func reAddAnimation() {
         //readd the animation
         let toX = self.center.x
-        let toY = (self.superview?.frame.size.height)! + self.frame.size.height/2
+        let toY = (self.superview?.frame.size.height)! + self.frame.size.height
         let toPoint = CGPoint(x: toX, y: toY)
         let randomDuration:CFTimeInterval = self.duration
         
@@ -174,6 +177,7 @@ class ContainerView: UIView, CAAnimationDelegate {
         movement.delegate = self
         
         self.layer.position = toPoint
+        self.layer.fillMode = kCAFillModeForwards
         self.layer.add(movement, forKey: "move")
     }
     
@@ -198,14 +202,18 @@ class ContainerView: UIView, CAAnimationDelegate {
             theTransform.ty = 0.0
             self.transform = theTransform
             
-            //check if intersect with basket frame
-//            if (self.basketImageView?.frame.intersects(self.frame))! {
-//                //flag the animation as completed
-//                animationCompleted()
-//                return
-//            }
-            
-            
+            //drag ended check if it was over the basket
+            let basketRect:CGRect = (basketImageView?.frame)!
+            let viewPosition = self.layer.position
+            if (basketRect.contains(viewPosition)) {
+                print("put item in basket")
+                animationCompleted()
+                //send a notification when a flower is added to basket view
+                NotificationCenter.default.post(name: addToFavoritesNotification, object: nil,
+                                                userInfo:["photo":photo])
+                
+                return
+            }
             
             //readd the animation which was removed temporarily
             if (!bPaused) {
