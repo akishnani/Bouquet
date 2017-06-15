@@ -208,6 +208,7 @@ class ContainerView: UIView, CAAnimationDelegate {
             if (basketRect.contains(viewPosition)) {
                 print("put item in basket")
                 animationCompleted()
+                photo.setFrame(frame: self.frame)
                 //send a notification when a flower is added to basket view
                 NotificationCenter.default.post(name: addToFavoritesNotification, object: nil,
                                                 userInfo:["photo":photo])

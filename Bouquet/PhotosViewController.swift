@@ -18,10 +18,11 @@ class PhotosViewController: UIViewController, CAAnimationDelegate {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
         
-        //set the background to teal color
-        self.navigationController?.navigationBar.barTintColor = UIColor(red: 0, green: 128.0/255.0, blue: 128/255.0, alpha: 1.0)
+        //set the background to Bisque color
+        self.navigationController?.navigationBar.barTintColor = UIColor(red: 238.0/255, green: 213.0/255.0, blue: 183.0/255.0, alpha: 1.0)
 
-        self.view.backgroundColor = UIColor(red: 0, green: 128.0/255.0, blue: 128/255.0, alpha: 1.0)
+        self.view.backgroundColor = UIColor(red: 238.0/255, green: 213.0/255.0, blue: 183.0/255.0, alpha: 1.0)
+
         
         photosView.navController = self.navigationController
         photosView.basketImageView = basketImageView

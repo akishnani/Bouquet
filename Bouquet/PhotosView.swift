@@ -228,6 +228,9 @@ class PhotosView: UIView,CAAnimationDelegate {
                     badgeVal += 1
                     TIPBadgeManager.sharedInstance.setBadgeValue("favoritesBadge", value: badgeVal)
                 }
+                if (photo.position == CGPoint.zero) {
+                    photo.position = self.calculateRandomPointForImageView()
+                }
                 self.favoritesPhotos.append(photo)
             }
         }
@@ -411,7 +414,7 @@ class PhotosView: UIView,CAAnimationDelegate {
                 var imagePosition:CGPoint = CGPoint.zero
                 
                 if (aPhoto.frame != CGRect.zero) {
-                    //retrive the frame from the saved photo class instance
+                    //retrive the frame from the saved photo class
                     imageRect = aPhoto.frame!
                     imagePosition = aPhoto.position!
                 }
@@ -452,6 +455,7 @@ class PhotosView: UIView,CAAnimationDelegate {
                 
                 //creating a containerView specifically for flip transition
                 let containerView = ContainerView(frame: imageRect, aPhoto:aPhoto,duration:randomDuration)
+
                 containerView.isOpaque = false
                 containerView.backgroundColor = UIColor.clear
                 containerView.isUserInteractionEnabled = true
@@ -498,6 +502,17 @@ class PhotosView: UIView,CAAnimationDelegate {
         }
     }
     
+    func calculateRandomPointForImageView() -> CGPoint {
+        //get the nav bar height + status bar height
+        let navBarHeight = (self.navController?.navigationBar.frame.size.height)! + UIApplication.shared.statusBarFrame.height
+        
+        //calculate a random Point
+        let maxX:UInt32 = UInt32(self.frame.size.width)
+        
+        let aRandomPoint = CGPoint(x:Int(arc4random_uniform(maxX)),y:Int(arc4random_uniform(UInt32(navBarHeight))))
+        
+        return aRandomPoint
+    }
     
     func calculateViewFrameForImageView()->CGRect {
 
