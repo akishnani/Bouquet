@@ -161,7 +161,7 @@ class ContainerView: UIView, CAAnimationDelegate {
     }
     
     /**
-     * re-add animation which was removed on drag
+     * re-add animation which was removed on drag & pinch
      */
     func reAddAnimation() {
         //readd the animation
@@ -181,7 +181,43 @@ class ContainerView: UIView, CAAnimationDelegate {
         self.layer.add(movement, forKey: "move")
     }
     
-    
+    /**
+     * shrink animation when dropping the flower into the basket
+     */
+    func shrinkBoundsAnimation() {
+        
+        for aSubview in self.subviews {
+            if let anImageView = aSubview as? PhotoImageView {
+                UIView.animate(withDuration: 1,
+                               animations:
+                {
+                    //shrink the bounds to zero
+                    anImageView.bounds = CGRect.zero
+                },
+                completion:
+                    { (finished: Bool) in
+                        if (finished) {
+                            self.animationCompleted()
+                        }
+                })
+            }
+            
+            if let aMetaDataView = aSubview as? MetaDataView {
+                UIView.animate(withDuration: 1,
+                               animations:
+                {
+                    //shrink the bounds to zero
+                    aMetaDataView.bounds = CGRect.zero
+                },
+                completion:
+                    { (finished: Bool) in
+                        if (finished) {
+                            self.animationCompleted()
+                        }
+                })
+            }
+        }
+    }
     
     func drag(_ gestureRecognizer:UIPanGestureRecognizer) {
         
@@ -201,17 +237,22 @@ class ContainerView: UIView, CAAnimationDelegate {
             theTransform.tx = 0.0
             theTransform.ty = 0.0
             self.transform = theTransform
-            
+
+            photo.setFrame(frame: self.frame)
+
             //drag ended check if it was over the basket
             let basketRect:CGRect = (basketImageView?.frame)!
             let viewPosition = self.layer.position
             if (basketRect.contains(viewPosition)) {
                 print("put item in basket")
-                animationCompleted()
-                photo.setFrame(frame: self.frame)
+                //animationCompleted()
+                
+                self.layer.removeAllAnimations()
+                
+                self.shrinkBoundsAnimation()
+                
                 //send a notification when a flower is added to basket view
-                NotificationCenter.default.post(name: addToFavoritesNotification, object: nil,
-                                                userInfo:["photo":photo])
+                NotificationCenter.default.post(name: addToFavoritesNotification, object: nil, userInfo:["photo":photo, "containerView":self])
                 
                 return
             }

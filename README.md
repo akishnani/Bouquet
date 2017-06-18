@@ -37,6 +37,10 @@ In order to run the project:
 ©2017 Amit Kishnani
 
 -----
+Verion 1.8
+-   shrink animation when the flower is dropped into the basket
+
+-----
 Verion 1.7
 
 -   added files from [TIPBadgeManager](https://github.com/johncosch/TIPBadgeManager) badge manager to be added to any view
