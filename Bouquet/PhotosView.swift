@@ -54,7 +54,13 @@ class PhotosView: UIView,CAAnimationDelegate {
     var viewingMode:ViewingMode = ViewingMode.normal
     
     //timer to re-request a new batch of flowers
-    weak var timer: Timer?
+    weak var inventoryUpdateTimer: Timer?
+
+    //timer to display a favorites
+    weak var favoritesTimer: Timer?
+    
+    //start fav index - keep tracks of where to start in favorite collection
+    var startFavIndex:Int = 0
     
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
@@ -92,13 +98,62 @@ class PhotosView: UIView,CAAnimationDelegate {
             TIPBadgeManager.sharedInstance.setBadgeValue("favoritesBadge", value: 0)
         }
 
-        timer = Timer.scheduledTimer(timeInterval: 0.5, target: self, selector: #selector(self.inventoryUpdate), userInfo: nil, repeats: true);
+        inventoryUpdateTimer = Timer.scheduledTimer(timeInterval: 0.5, target: self, selector: #selector(self.inventoryUpdate), userInfo: nil, repeats: true);
+
+        favoritesTimer = Timer.scheduledTimer(timeInterval: 0.25, target: self, selector: #selector(self.favoritesUpdate), userInfo: nil, repeats: true);
     }
     
     func viewWillDisappear() {
-        if let timer = self.timer {
+        if let timer = self.inventoryUpdateTimer {
             print("Suspending Inventory Update")
             timer.invalidate()
+        }
+        
+        if let favtimer = self.inventoryUpdateTimer {
+            print("Suspending favorites Update")
+            favtimer.invalidate()
+        }
+    }
+    
+    func favoritesUpdate() {
+        //if the normal mode is on - skip the update cycle which is only used in .favorites mode
+        if (viewingMode == .normal) {
+            return
+        }
+        
+        if (startFavIndex == self.favoritesPhotos.count) {
+            startFavIndex = 0
+        }
+        
+        let maxFlowerCount = min(self.maxFlowerCount, self.favoritesPhotos.count)
+        
+        let nFlowerViewCount:Int = self.subviews.count - 3 //account for basket frame + two constraints
+        let delta = maxFlowerCount - nFlowerViewCount
+
+        if (delta > 0) {
+            if (self.favoritesPhotos.count >= delta) {
+                if (self.pendingFetchFlowerCount == 0) {
+                    
+                    var bEnteredLoop:Bool = false
+                    var nCount = 0
+                    for photoIndex in startFavIndex..<self.favoritesPhotos.count {
+                        let photo:Photo = favoritesPhotos[photoIndex]
+                        photo.position = self.calculateRandomPointForImageView()
+                        self.fetchAndConfigureImage(aPhoto: photo, fetchMode: .favorites)
+                        startFavIndex += 1
+                        bEnteredLoop = true
+                        nCount += 1
+                        if (nCount == delta) {
+                            break
+                        }
+                    }
+                    
+                    //number of outstanding calls to images to be fetched in pipeline - wait for these calls to return.
+                    if (bEnteredLoop) {
+                        self.pendingFetchFlowerCount = delta
+                    }
+                }
+            }
         }
     }
 
@@ -228,9 +283,6 @@ class PhotosView: UIView,CAAnimationDelegate {
                     badgeVal += 1
                     TIPBadgeManager.sharedInstance.setBadgeValue("favoritesBadge", value: badgeVal)
                 }
-                if (photo.position == CGPoint.zero) {
-                    photo.position = self.calculateRandomPointForImageView()
-                }
                 self.favoritesPhotos.append(photo)
             }
         }
@@ -266,19 +318,17 @@ class PhotosView: UIView,CAAnimationDelegate {
                     }
                 }
     
-                
-                //load the images from the favorite collection
-                for aPhoto in self.favoritesPhotos {
-                    self.fetchAndConfigureImage(aPhoto: aPhoto, fetchMode:.favorites)
-                }
-                
-                //reset to zero
-                self.favoritesPhotos.removeAll()
                 TIPBadgeManager.sharedInstance.setBadgeValue("favoritesBadge", value: 0)
+                self.pendingFetchFlowerCount = 0
+                favoritesUpdate()
 
             case .favorites:
+                //reset favorites photos to zero
+                self.favoritesPhotos.removeAll()
+                
                 //toggle to normal mode
                 viewingMode = .normal
+                
                 //set the navigation title to favorites
                 let bouquetTitle = NSLocalizedString("Bouquet", comment: "title for normal bouquet mode")
                 self.navController?.navigationBar.topItem?.title = bouquetTitle
@@ -397,12 +447,24 @@ class PhotosView: UIView,CAAnimationDelegate {
             
             if ((fetchMode == .normal) && (self.viewingMode == .favorites))  {
                 //decrement the pending flower count
-                self.pendingFetchFlowerCount = self.pendingFetchFlowerCount - 1
+                if (self.pendingFetchFlowerCount > 0) {
+                    self.pendingFetchFlowerCount = self.pendingFetchFlowerCount - 1
+                }
                 return //most likely a outstanding request fired from the .normal mode returned when we are currently in the favorites mode
             }
-            
-            if (self.viewingMode == .normal) {
+
+            if ((fetchMode == .favorites) && (self.viewingMode == .normal))  {
                 //decrement the pending flower count
+                if (self.pendingFetchFlowerCount > 0) {
+                    self.pendingFetchFlowerCount = self.pendingFetchFlowerCount - 1
+                }
+                return //most likely a outstanding request fired from the .normal mode returned when we are currently in the favorites mode
+            }
+
+            
+            
+            //decrement the pending flower count
+            if (self.pendingFetchFlowerCount > 0) {
                 self.pendingFetchFlowerCount = self.pendingFetchFlowerCount - 1
             }
             

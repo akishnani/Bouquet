@@ -9,7 +9,6 @@ In addition this is backed by ImageStore cache class which caches images in memo
 
 Each Photo.swift model class has a corresponding view class PhotoImageView.swift
 
-PhotoImageView.swift class supports different gestures like tap to hold, drag to move and pinch to zoom in/zoom out
 
 Currently the project has the following features which are in working state:
 
@@ -21,7 +20,7 @@ Currently the project has the following features which are in working state:
 -   uses the saved images for a faster launch
 -   added favorites basket where user can drag and drop flowers into
 -   allowing users to only display images from favorite basket
--   displaying the image meta data by double tapping on the flower
+-   displaying the image meta data by double tapping on the flower using "flip" animation
 -   adjust image keyword search according to user’s default language setting
 
 Features still to be implemented:
@@ -35,6 +34,11 @@ In order to run the project:
 -   run the app on the device since the memory footprint is different than the memory footprint on the simulator
 
 ©2017 Amit Kishnani
+
+-----
+Verion 1.9
+-   continious flow of flowers when in favorites mode
+-   added a timer which fires every quater second (0.25) and calls the favoritesUpdate which manages display of flowers in favorites mode
 
 -----
 Verion 1.8
