@@ -644,6 +644,7 @@ class PhotosView: UIView,CAAnimationDelegate {
             }
         }
         aContainerView.layer.removeAllAnimations()
+        aContainerView.stop() //stop the display link timer
         aContainerView.removeFromSuperview()
         self.containerViews.removeValue(forKey: aContainerView.photo.photoID)
         print("removing::child subview count:\(self.subviews.count)")

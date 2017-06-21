@@ -92,12 +92,18 @@ class ContainerView: UIView, CAAnimationDelegate {
         timer?.add(to: .main, forMode: .UITrackingRunLoopMode)
     }
     
+    
+    func stop() {
+        timer?.invalidate()
+        timer = nil
+    }
+    
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
     deinit {
-        print("inside the deinit method of Collection View")
+        print("inside the deinit method of ContainerView")
     }
     
     /*
@@ -188,7 +194,7 @@ class ContainerView: UIView, CAAnimationDelegate {
         
         for aSubview in self.subviews {
             if let anImageView = aSubview as? PhotoImageView {
-                UIView.animate(withDuration: 1,
+                UIView.animate(withDuration: 1.5,
                                animations:
                 {
                     //shrink the bounds to zero
@@ -203,7 +209,7 @@ class ContainerView: UIView, CAAnimationDelegate {
             }
             
             if let aMetaDataView = aSubview as? MetaDataView {
-                UIView.animate(withDuration: 1,
+                UIView.animate(withDuration: 1.5,
                                animations:
                 {
                     //shrink the bounds to zero
@@ -245,9 +251,6 @@ class ContainerView: UIView, CAAnimationDelegate {
             let viewPosition = self.layer.position
             if (basketRect.contains(viewPosition)) {
                 print("put item in basket")
-                //animationCompleted()
-                
-                self.layer.removeAllAnimations()
                 
                 self.shrinkBoundsAnimation()
                 
@@ -341,7 +344,8 @@ class ContainerView: UIView, CAAnimationDelegate {
         }
         
         self.layer.removeAllAnimations()
-        self.removeFromSuperview()        
+        self.removeFromSuperview()
+        self.stop() //stop the display link timer
     }
     
     
