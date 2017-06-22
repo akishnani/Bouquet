@@ -22,10 +22,8 @@ Currently the project has the following features which are in working state:
 -   allowing users to only display images from favorite basket
 -   displaying the image meta data by double tapping on the flower using "flip" animation
 -   adjust image keyword search according to user’s default language setting
+-   Ignore gestures on transparent areas of the flower views.
 
-Features still to be implemented:
-
--   ignoring users gestures on transparent areas of imageview
 
 In order to run the project:
 
@@ -34,6 +32,11 @@ In order to run the project:
 -   run the app on the device since the memory footprint is different than the memory footprint on the simulator
 
 ©2017 Amit Kishnani
+
+-----
+Verion 2.0
+-   ignoring users gestures on transparent areas of imageview
+-   added a uigesturerecognizerdelegate which checks if the touch point is inside the circle using the Pythagorean theorem
 
 -----
 Verion 1.9
