@@ -31,6 +31,10 @@ class PhotoImageView: UIImageView {
         
         //make the user interaction enable
         self.isUserInteractionEnabled = true
+        
+//        //set a green border
+//        self.layer.borderColor = UIColor.green.cgColor
+//        self.layer.borderWidth = 1
     }
     
     

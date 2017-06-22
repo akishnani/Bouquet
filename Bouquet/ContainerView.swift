@@ -8,7 +8,7 @@
 
 import UIKit
 
-class ContainerView: UIView, CAAnimationDelegate {
+class ContainerView: UIView, CAAnimationDelegate, UIGestureRecognizerDelegate {
 
     /*
     // Only override draw() if you perform custom drawing.
@@ -65,6 +65,7 @@ class ContainerView: UIView, CAAnimationDelegate {
         doubleTapRecognizer.numberOfTapsRequired = 2
         doubleTapRecognizer.delaysTouchesBegan = true
         addGestureRecognizer(doubleTapRecognizer)
+        doubleTapRecognizer.delegate = self
         
         //add a tap gesture
         let tapRecognizer = UITapGestureRecognizer(target: self, action: #selector(ContainerView.tap(_:)))
@@ -72,14 +73,17 @@ class ContainerView: UIView, CAAnimationDelegate {
         tapRecognizer.delaysTouchesBegan = true
         tapRecognizer.require(toFail: doubleTapRecognizer)
         addGestureRecognizer(tapRecognizer)
+        tapRecognizer.delegate = self
         
         //add a pan gesture
         let panRecognizer = UIPanGestureRecognizer(target: self, action: #selector(ContainerView.drag(_:)))
         addGestureRecognizer(panRecognizer)
+        panRecognizer.delegate = self
         
         //add a pinch recognizer
         let pinchRecognizer = UIPinchGestureRecognizer(target: self, action: #selector(ContainerView.scalePiece(_:)))
         addGestureRecognizer(pinchRecognizer)
+        pinchRecognizer.delegate = self
         
         //add a timer to adjust the imageRect
         addDisplayLink()
@@ -348,5 +352,25 @@ class ContainerView: UIView, CAAnimationDelegate {
         self.stop() //stop the display link timer
     }
     
-    
+    /*
+     *  this routines checks if the touch point is inside the circle using the Pythagorean theorem
+     *  if inside that the gesture is allowed to be received else ignored
+     */
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
+        let aTouch:CGPoint = touch.location(in: self.superview)
+        let circleCetner:CGPoint = self.layer.position
+        //calcualte the Pythagorean theorem
+        let aDistance:CGFloat = sqrt(pow((aTouch.x - circleCetner.x), 2) + pow((aTouch.y - circleCetner.y), 2))
+        //caculate the radius
+        let radius:CGFloat = (self.layer.presentation()?.frame.height)!/2
+//      print("aTouch:\(aTouch) circleCenter:\(circleCetner)")
+//      print("d:\(aDistance) radius:\(radius)")
+        if (aDistance < radius) {
+//          print("point is inside circle")
+            return true //allow the gesture to proceed
+        } else {
+//          print("point is outside circle")
+        }
+        return false //blocks the gesture
+    }
 }
