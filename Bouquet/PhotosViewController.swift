@@ -39,11 +39,6 @@ class PhotosViewController: UIViewController, CAAnimationDelegate {
             NSNotification.Name.UIApplicationDidEnterBackground, object: nil)
         
         
-        //register for orientation change method
-        NotificationCenter.default.addObserver(self, selector: #selector(PhotosViewController.rotated), name: NSNotification.Name.UIDeviceOrientationDidChange, object: nil)
-        
-        
-        
         //load any saved photos between launch sessions and could be internet is not available
         //we want all the photos even the ones which are not displayed when we were terminated
         //last time.
@@ -51,15 +46,6 @@ class PhotosViewController: UIViewController, CAAnimationDelegate {
         
         
     }
-    
-    func rotated() {
-        if UIDevice.current.orientation.isLandscape {
-            photosView.handleOrientationChanges(orientation: "Landscape")
-        } else {
-            photosView.handleOrientationChanges(orientation: "Portrait")
-        }
-    }
-    
     
     func appBecomesActive() -> Void {
         photosView.loadSavedPhotos(bActivePhotos: true)
